@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.0)
+set(CMAKE_CXX_STANDARD 11)
+
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-parameter")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsign-compare")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=integer")
+endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+# =========
+# = PEGTL =
+# =========
+
+find_package(PEGTL REQUIRED)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+  # Work around error “unrecognized option '--push-state'”
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=gold")
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
+include_directories("${PEGTL_INCLUDE_DIRS}")
