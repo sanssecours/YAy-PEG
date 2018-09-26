@@ -1,0 +1,88 @@
+language: cpp
+
+matrix:
+  include:
+    - os: osx
+      name: 🍏 Clang
+      compiler: clang
+      env:
+        - ASAN_OPTIONS=detect_leaks=1
+        - CXXFLAGS=-Werror
+
+    - os: osx
+      osx_image: xcode9.2
+      name: 🍏 GCC
+      compiler: gcc
+      env:
+        - CXXFLAGS=-Werror
+
+    - os: linux
+      name: 🐧 Clang
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-6.0
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-6.0
+            - clang-format-6.0
+            - g++-8
+      env:
+        - CC_COMPILER=clang-6.0
+        - CXX_COMPILER=clang++-6.0
+
+    - os: linux
+      name: 🐧 GCC
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env:
+        - CC_COMPILER=gcc-8
+        - CXX_COMPILER=g++-8
+        - CXXFLAGS=-Werror
+
+before_install:
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [[ "$CC" == "gcc" ]]; then
+        brew install gcc
+        brew link --overwrite gcc
+        version=$(brew info gcc | head -n1 | sed -E 's/[^0-9]*([0-9]+)\..*/\1/')
+        export CC="gcc-$version"
+        export CXX="g++-$version"
+      else
+        brew install llvm
+        export CC=/usr/local/opt/llvm/bin/clang
+        export CXX=/usr/local/opt/llvm/bin/clang++
+      fi
+      brew install ninja
+    fi
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      [[ -n "$CC_COMPILER" ]] && export CC="$CC_COMPILER"
+      [[ -n "$CXX_COMPILER" ]] && export CXX="$CXX_COMPILER"
+      sudo apt-get install ninja-build
+    fi
+  - >
+    git clone https://github.com/taocpp/PEGTL.git &&
+    cd PEGTL &&
+    mkdir build &&
+    cd build &&
+    cmake .. &&
+    make &&
+    sudo make install &&
+    cd ../..
+
+before_script:
+  - mkdir -p Build
+  - cd Build
+  - cmake -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+  - cd ..
+
+script:
+  - 'true'
