@@ -27,5 +27,12 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 find_package(PEGTL REQUIRED)
 
+# ===========
+# = Yay PEG =
+# ===========
+
+set(SOURCE_DIRECTORY Source)
+set(SOURCE_FILES ${SOURCE_DIRECTORY}/yaypeg.cpp)
 
 include_directories("${PEGTL_INCLUDE_DIRS}")
+add_executable(yaypeg ${SOURCE_FILES})
