@@ -85,4 +85,5 @@ before_script:
   - cd ..
 
 script:
-  - 'true'
+  - ninja -C Build
+  - Build/yaypeg
