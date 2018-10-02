@@ -16,15 +16,16 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=integer")
 endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
+if(CMAKE_COMPILER_IS_GNUCXX)
+  # Work around error “unrecognized option '--push-state'”
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=gold")
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
 # =========
 # = PEGTL =
 # =========
 
 find_package(PEGTL REQUIRED)
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-  # Work around error “unrecognized option '--push-state'”
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=gold")
-endif(CMAKE_COMPILER_IS_GNUCXX)
 
 include_directories("${PEGTL_INCLUDE_DIRS}")
