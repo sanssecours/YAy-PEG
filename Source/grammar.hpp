@@ -32,7 +32,7 @@ template <typename Rule> struct action : nothing<Rule> {};
 
 template <> struct action<plain_scalar> {
   template <typename Input> static void apply(const Input &input) {
-    cout << "Found plain scalar “" << input.string() << "”";
+    cout << "Found plain scalar “" << input.string() << "”\n";
   }
 };
 
