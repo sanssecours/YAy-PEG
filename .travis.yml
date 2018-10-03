@@ -86,4 +86,11 @@ before_script:
 
 script:
   - ninja -C Build
+  - |
+     if which oclint; then
+       oclint -p Build -no-analytics \
+              -enable-global-analysis \
+              -enable-clang-static-analyzer \
+              Source/*.cpp
+      fi
   - Build/yaypeg
