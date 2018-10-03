@@ -11,28 +11,21 @@
 
 // -- Imports ------------------------------------------------------------------
 
-using std::cout;
-
-namespace pegtl = tao::pegtl;
-
-using pegtl::eof;
-using pegtl::identifier;
-using pegtl::nothing;
-using pegtl::until;
+#include <tao/pegtl.hpp>
 
 // -- Grammar ------------------------------------------------------------------
 
 namespace yaypeg {
 
-struct plain_scalar : identifier {};
+struct plain_scalar : tao::pegtl::identifier {};
 
-struct yaml : until<plain_scalar, eof> {};
+struct yaml : tao::pegtl::until<plain_scalar, tao::pegtl::eof> {};
 
-template <typename Rule> struct action : nothing<Rule> {};
+template <typename Rule> struct action : tao::pegtl::nothing<Rule> {};
 
 template <> struct action<plain_scalar> {
   template <typename Input> static void apply(const Input &input) {
-    cout << "Found plain scalar “" << input.string() << "”\n";
+    std::cout << "Found plain scalar “" << input.string() << "”\n";
   }
 };
 
