@@ -12,8 +12,9 @@ using std::endl;
 
 namespace pegtl = tao::pegtl;
 
-using pegtl::argv_input;
+using pegtl::file_input;
 using pegtl::parse;
+using tao::pegtl::input_error;
 using tao::pegtl::parse_error;
 
 using yaypeg::action;
@@ -23,10 +24,11 @@ using yaypeg::yaml;
 
 int main(int argc, char *argv[]) {
   if (argc > 1) {
-    argv_input<> input{argv, 1};
-
     try {
+      file_input<> input{argv[1]};
       parse<yaml, action>(input);
+    } catch (input_error const &error) {
+      cerr << "Unable to open input: " << error.what() << endl;
     } catch (parse_error const &error) {
       cerr << "Unable to parser input: " << error.what() << endl;
     }
