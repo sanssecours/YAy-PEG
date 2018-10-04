@@ -35,6 +35,6 @@ int main(int argc, char *argv[]) {
   } catch (input_error const &error) {
     cerr << "Unable to open input: " << error.what() << endl;
   } catch (parse_error const &error) {
-    cerr << "Unable to parser input: " << error.what() << endl;
+    cerr << "Unable to parse input: " << error.what() << endl;
   }
 }
