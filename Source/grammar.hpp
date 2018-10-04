@@ -19,7 +19,9 @@ namespace yaypeg {
 
 struct plain_scalar : tao::pegtl::identifier {};
 
-struct node : tao::pegtl::until<plain_scalar, tao::pegtl::eof> {};
+struct node
+    : tao::pegtl::until<tao::pegtl::eof,
+                        tao::pegtl::sor<plain_scalar, tao::pegtl::space>> {};
 struct yaml : tao::pegtl::must<node> {};
 
 template <typename Rule> struct action : tao::pegtl::nothing<Rule> {};
