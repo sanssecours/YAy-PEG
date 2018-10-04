@@ -32,9 +32,17 @@ struct yaml : tao::pegtl::must<node> {};
 // = Actions =
 // ===========
 
+// Disable actions for rules
 template <typename Rule> struct action : tao::pegtl::nothing<Rule> {};
 
+/** This struct contains an action for plain scalars. */
 template <> struct action<plain_scalar> {
+
+  /**
+   * @brief PEGTL will call this function after it matched a plain scalar.
+   *
+   * @param input This parameter stores the input matched by the grammar rule.
+   */
   template <typename Input> static void apply(const Input &input) {
     std::cout << "Found plain scalar “" << input.string() << "”\n";
   }
