@@ -17,12 +17,20 @@
 
 namespace yaypeg {
 
+// ===========
+// = Grammar =
+// ===========
+
 struct plain_scalar : tao::pegtl::identifier {};
 
 struct node
     : tao::pegtl::until<tao::pegtl::eof,
                         tao::pegtl::sor<plain_scalar, tao::pegtl::space>> {};
 struct yaml : tao::pegtl::must<node> {};
+
+// ===========
+// = Actions =
+// ===========
 
 template <typename Rule> struct action : tao::pegtl::nothing<Rule> {};
 
