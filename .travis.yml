@@ -61,12 +61,20 @@ before_install:
         export CXX=/usr/local/opt/llvm/bin/clang++
       fi
       brew install ninja
+      brew install elektra
     fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       [[ -n "$CC_COMPILER" ]] && export CC="$CC_COMPILER"
       [[ -n "$CXX_COMPILER" ]] && export CXX="$CXX_COMPILER"
       sudo apt-get install ninja-build
+      git clone https://github.com/ElektraInitiative/libelektra.git
+      cd libelektra && \
+         mkdir Build && \
+         cd Build && \
+         cmake -GNinja -DCOMMON_FLAGS=-Wno-error .. && \
+         sudo ninja install && \
+         cd ../..
     fi
   - >
     git clone https://github.com/taocpp/PEGTL.git &&

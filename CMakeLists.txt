@@ -21,6 +21,13 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=gold")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
+# ===========
+# = Elektra =
+# ===========
+
+find_package(Elektra REQUIRED)
+include_directories(${ELEKTRA_INCLUDE_DIR})
+
 # =========
 # = PEGTL =
 # =========
@@ -36,3 +43,4 @@ set(SOURCE_FILES ${SOURCE_DIRECTORY}/grammar.hpp ${SOURCE_DIRECTORY}/yaypeg.cpp)
 
 include_directories("${PEGTL_INCLUDE_DIRS}")
 add_executable(yaypeg ${SOURCE_FILES})
+target_link_libraries(yaypeg elektra)
