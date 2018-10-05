@@ -105,4 +105,4 @@ script:
               -enable-clang-static-analyzer \
               Source/*.cpp
       fi
-  - Build/yaypeg "Data/Plain Scalar>Word Chars.yaml"
+  - Test/test.fish
