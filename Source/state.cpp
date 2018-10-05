@@ -13,11 +13,20 @@
 
 #include "state.hpp"
 
+using kdb::Key;
 using kdb::KeySet;
 
 // -- Class --------------------------------------------------------------------
 
 namespace yaypeg {
+
+/**
+ * @brief This constructor creates a State using the given parent key.
+ *
+ * @param parent This argument specifies the parent key of the key set that
+ *               this class stores.
+ */
+State::State(Key const &parent) { parents.push(parent.dup()); }
 
 /**
  * @brief This method returns the converted YAML data.

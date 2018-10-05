@@ -12,6 +12,8 @@
 
 // -- Imports ------------------------------------------------------------------
 
+#include <stack>
+
 #include <kdb.hpp>
 
 // -- Class --------------------------------------------------------------------
@@ -23,7 +25,18 @@ class State {
   /** This key set stores the converted YAML data. */
   kdb::KeySet keys;
 
+  /** This stack stores a key for each level of the current key name. */
+  std::stack<kdb::Key> parents;
+
 public:
+  /**
+   * @brief This constructor creates a State using the given parent key.
+   *
+   * @param parent This argument specifies the parent key of the key set that
+   *               this class stores.
+   */
+  State(kdb::Key const &parent);
+
   /**
    * @brief This method returns the converted YAML data.
    *

@@ -38,9 +38,8 @@ namespace yaypeg {
  *            given keyset
  * @retval  1 if parsing was successful and the function did change `keySet`
  */
-int addToKeySet(CppKeySet &keySet, CppKey &parent __attribute__((unused)),
-                string const &filename) {
-  State state;
+int addToKeySet(CppKeySet &keySet, CppKey &parent, string const &filename) {
+  State state{parent};
 
   file_input<> input{filename};
   parse<yaml, action>(input, state);
