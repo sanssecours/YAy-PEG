@@ -10,6 +10,7 @@
 #include "convert.hpp"
 
 using std::cerr;
+using std::cout;
 using std::endl;
 using std::string;
 
@@ -21,6 +22,16 @@ using kdb::Key;
 using kdb::KeySet;
 
 using yaypeg::addToKeySet;
+
+// -- Functions ----------------------------------------------------------------
+
+void printOutput(KeySet const &keys) {
+  cout << endl << "— Output ————" << endl << endl;
+  for (auto key : keys) {
+    cout << key.getName() << ":"
+         << (key.getStringSize() > 1 ? " " + key.getString() : "") << endl;
+  }
+}
 
 // -- Main ---------------------------------------------------------------------
 
@@ -34,12 +45,16 @@ int main(int argc, char *argv[]) {
   string filename = argv[1];
   KeySet keys;
   Key parent{keyNew("user", KEY_END, "", KEY_VALUE)};
+  int status = -1;
 
   try {
-    addToKeySet(keys, parent, filename);
+    status = addToKeySet(keys, parent, filename);
   } catch (input_error const &error) {
     cerr << "Unable to open input: " << error.what() << endl;
   } catch (parse_error const &error) {
     cerr << "Unable to parse input: " << error.what() << endl;
   }
+
+  printOutput(keys);
+  return (status >= 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
