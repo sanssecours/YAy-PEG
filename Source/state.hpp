@@ -1,8 +1,8 @@
 /**
  * @file
  *
- * @brief This file contains a class used by the PEGTL parser to create a key
- *        set.
+ * @brief This file contains the declaration of a class used by the PEGTL
+ *        parser to create a key set.
  *
  * @copyright BSD License (see LICENSE.md or https://www.libelektra.org)
  */
@@ -29,7 +29,7 @@ public:
    *
    * @return A key set representing the parsed YAML data
    */
-  kdb::KeySet getKeySet() { return keys; };
+  kdb::KeySet getKeySet();
 };
 
 } // namespace yaypeg
