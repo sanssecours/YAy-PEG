@@ -52,8 +52,8 @@ template <> struct action<plain_scalar> {
    *              set from the YAML data.
    */
   template <typename Input>
-  static void apply(const Input &input, State &state __attribute__((unused))) {
-    std::cout << "Found plain scalar “" << input.string() << "”\n";
+  static void apply(const Input &input, State &state) {
+    state.appendKey(input.string());
   }
 };
 

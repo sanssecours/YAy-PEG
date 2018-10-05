@@ -38,6 +38,14 @@ public:
   State(kdb::Key const &parent);
 
   /**
+   * @brief This method stores the current parent key in the key set.
+   *
+   * @param text This variable specifies the text that should be used as value
+   *             for the stored parent key.
+   */
+  void appendKey(std::string const &text);
+
+  /**
    * @brief This method returns the converted YAML data.
    *
    * @return A key set representing the parsed YAML data
