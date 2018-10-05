@@ -42,7 +42,7 @@ public:
    *
    * @return A key set representing the parsed YAML data
    */
-  kdb::KeySet getKeySet();
+  kdb::KeySet getKeySet() const;
 };
 
 } // namespace yaypeg

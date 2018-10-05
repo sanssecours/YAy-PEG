@@ -33,6 +33,6 @@ State::State(Key const &parent) { parents.push(parent.dup()); }
  *
  * @return A key set representing the parsed YAML data
  */
-KeySet State::getKeySet() { return keys; };
+KeySet State::getKeySet() const { return keys; };
 
 } // namespace yaypeg
