@@ -15,6 +15,10 @@
 
 #include <tao/pegtl.hpp>
 
+#include <kdb.hpp>
+
+#include "state.hpp"
+
 // -- Grammar ------------------------------------------------------------------
 
 namespace yaypeg {
@@ -44,8 +48,11 @@ template <> struct action<plain_scalar> {
    * @brief PEGTL will call this function after it matched a plain scalar.
    *
    * @param input This parameter stores the input matched by the grammar rule.
+   * @param state This parameter stores data the parser uses to create a key
+   *              set from the YAML data.
    */
-  template <typename Input> static void apply(const Input &input) {
+  template <typename Input>
+  static void apply(const Input &input, State &state __attribute__((unused))) {
     std::cout << "Found plain scalar “" << input.string() << "”\n";
   }
 };

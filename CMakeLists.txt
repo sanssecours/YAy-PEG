@@ -43,6 +43,7 @@ set(SOURCE_FILES
     ${SOURCE_DIRECTORY}/convert.hpp
     ${SOURCE_DIRECTORY}/convert.cpp
     ${SOURCE_DIRECTORY}/grammar.hpp
+    ${SOURCE_DIRECTORY}/state.hpp
     ${SOURCE_DIRECTORY}/yaypeg.cpp)
 
 include_directories("${PEGTL_INCLUDE_DIRS}")

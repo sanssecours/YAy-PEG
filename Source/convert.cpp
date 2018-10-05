@@ -10,6 +10,7 @@
 
 #include "convert.hpp"
 #include "grammar.hpp"
+#include "state.hpp"
 
 using std::string;
 
@@ -39,10 +40,13 @@ namespace yaypeg {
  */
 int addToKeySet(CppKeySet &keySet, CppKey &parent __attribute__((unused)),
                 string const &filename) {
-  file_input<> input{filename};
-  parse<yaml, action>(input);
+  State state;
 
-  CppKeySet keys{};
+  file_input<> input{filename};
+  parse<yaml, action>(input, state);
+
+  CppKeySet keys = state.getKeySet();
+
   int status = (keys.size() <= 0) ? 0 : 1;
 
   keySet.append(keys);
