@@ -62,11 +62,15 @@ before_install:
       fi
       brew install ninja
       brew install elektra
+      brew install fish
     fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       [[ -n "$CC_COMPILER" ]] && export CC="$CC_COMPILER"
       [[ -n "$CXX_COMPILER" ]] && export CXX="$CXX_COMPILER"
+      sudo apt-add-repository -y ppa:fish-shell/release-2
+      sudo apt-get update
+      sudo apt-get install fish
       sudo apt-get install ninja-build
       git clone https://github.com/ElektraInitiative/libelektra.git
       cd libelektra && \
