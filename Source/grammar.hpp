@@ -9,6 +9,23 @@
 #ifndef ELEKTRA_PLUGIN_YAYPEG_GRAMMAR_HPP
 #define ELEKTRA_PLUGIN_YAYPEG_GRAMMAR_HPP
 
+// -- Macros -------------------------------------------------------------------
+
+#define SPDLOG_TRACE_ON
+
+#if defined(__clang__)
+#define LOGF(fmt, ...)                                                         \
+  console->trace("{}:{}: " fmt, __FILE__, __LINE__, __VA_ARGS__)
+#else
+#define LOGF(fmt, ...)
+#endif
+
+#if defined(__clang__)
+#define LOG(text) console->trace("{}:{}: {}", __FILE__, __LINE__, text)
+#else
+#define LOG(text)
+#endif
+
 // -- Imports ------------------------------------------------------------------
 
 #include <iostream>
@@ -18,6 +35,14 @@
 #include <kdb.hpp>
 
 #include "state.hpp"
+
+#if defined(__clang__)
+#include <spdlog/spdlog.h>
+using spdlog::logger;
+using std::shared_ptr;
+
+extern shared_ptr<spdlog::logger> console;
+#endif
 
 // -- Grammar ------------------------------------------------------------------
 
@@ -89,6 +114,7 @@ template <> struct action<plain_scalar> {
    */
   template <typename Input>
   static void apply(const Input &input, State &state) {
+    LOGF("Matched plain scalar with value “{}”", input.string());
     state.appendKey(input.string());
   }
 };

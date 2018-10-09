@@ -23,6 +23,21 @@ using kdb::KeySet;
 
 using yaypeg::addToKeySet;
 
+#if defined(__clang__)
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+
+using spdlog::logger;
+using spdlog::set_level;
+using spdlog::set_pattern;
+using spdlog::stderr_color_mt;
+using spdlog::level::trace;
+
+using std::shared_ptr;
+
+shared_ptr<logger> console;
+#endif
+
 // -- Functions ----------------------------------------------------------------
 
 void printOutput(KeySet const &keys) {
@@ -36,6 +51,12 @@ void printOutput(KeySet const &keys) {
 // -- Main ---------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
+
+#if defined(__clang__)
+  set_pattern("[%H:%M:%S:%e] %v");
+  set_level(trace);
+  console = stderr_color_mt("console");
+#endif
 
   if (argc != 2) {
     cerr << "Usage: " << argv[0] << " filename" << endl;
