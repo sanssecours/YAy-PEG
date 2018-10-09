@@ -81,7 +81,7 @@ before_install:
          cd ../..
     fi
   - >
-    git clone https://github.com/taocpp/PEGTL.git &&
+    git clone --branch 2.7.x https://github.com/taocpp/PEGTL.git &&
     cd PEGTL &&
     mkdir build &&
     cd build &&
