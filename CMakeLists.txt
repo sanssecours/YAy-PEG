@@ -34,6 +34,18 @@ include_directories(${ELEKTRA_INCLUDE_DIR})
 
 find_package(PEGTL REQUIRED)
 
+# ==========
+# = spdlog =
+# ==========
+
+find_path(spdlog_INCLUDE_DIR
+          NAMES spdlog.h
+          DOC "spdlog library header files"
+          PATH_SUFFIXES spdlog)
+if(spdlog_INCLUDE_DIR STREQUAL spdlog_INCLUDE_DIR-NOTFOUND)
+  message(FATAL_ERROR "spdlog not found")
+endif(spdlog_INCLUDE_DIR STREQUAL spdlog_INCLUDE_DIR-NOTFOUND)
+
 # ===========
 # = Yay PEG =
 # ===========
@@ -47,6 +59,6 @@ set(SOURCE_FILES
     ${SOURCE_DIRECTORY}/state.cpp
     ${SOURCE_DIRECTORY}/yaypeg.cpp)
 
-include_directories("${PEGTL_INCLUDE_DIRS}")
+include_directories("${PEGTL_INCLUDE_DIRS}" "${spdlog_INCLUDE_DIR}")
 add_executable(yaypeg ${SOURCE_FILES})
 target_link_libraries(yaypeg elektra)
