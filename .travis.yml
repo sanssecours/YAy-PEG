@@ -63,6 +63,7 @@ before_install:
       brew install ninja
       brew install elektra
       brew install fish
+      brew install spdlog
     fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
@@ -79,6 +80,8 @@ before_install:
          cmake -GNinja -DCOMMON_FLAGS=-Wno-error .. && \
          sudo ninja install && \
          cd ../..
+      git clone --branch v1.x https://github.com/gabime/spdlog.git
+      sudo cp -R spdlog/include/spdlog /usr/local/include
     fi
   - >
     git clone --branch 2.7.x https://github.com/taocpp/PEGTL.git &&
