@@ -49,14 +49,13 @@ extern shared_ptr<spdlog::logger> console;
 namespace yaypeg {
 
 using tao::pegtl::eof;
-using tao::pegtl::identifier;
 using tao::pegtl::must;
 using tao::pegtl::not_at;
 using tao::pegtl::nothing;
+using tao::pegtl::opt;
 using tao::pegtl::plus;
 using tao::pegtl::seq;
 using tao::pegtl::sor;
-using tao::pegtl::space;
 using tao::pegtl::until;
 using tao::pegtl::utf8::one;
 using tao::pegtl::utf8::ranges;
@@ -80,7 +79,7 @@ struct b_carriage_return : one<'\r'> {};
 // [26]
 struct b_char : sor<b_line_feed, b_carriage_return> {};
 // [27]
-struct nb_char : seq<c_printable, not_at<sor<b_char, c_byte_order_mark>>> {};
+struct nb_char : seq<not_at<sor<b_char, c_byte_order_mark>>, c_printable> {};
 
 // [31]
 struct s_space : one<' '> {};
@@ -89,10 +88,10 @@ struct s_tab : one<'\t'> {};
 // [33]
 struct s_white : sor<s_space, s_tab> {};
 // [34]
-struct ns_char : seq<nb_char> {};
+struct ns_char : seq<not_at<s_white>, nb_char> {};
 
-struct plain_scalar : identifier {};
-struct node : until<eof, sor<plain_scalar, space>> {};
+struct plain_scalar : plus<ns_char> {};
+struct node : until<eof, seq<plain_scalar, opt<b_line_feed>>> {};
 struct yaml : must<node> {};
 
 // ===========
