@@ -23,23 +23,29 @@
 
 namespace yaypeg {
 
+using tao::pegtl::eof;
+using tao::pegtl::identifier;
+using tao::pegtl::must;
+using tao::pegtl::nothing;
+using tao::pegtl::sor;
+using tao::pegtl::space;
+using tao::pegtl::until;
+
 // ===========
 // = Grammar =
 // ===========
 
-struct plain_scalar : tao::pegtl::identifier {};
+struct plain_scalar : identifier {};
 
-struct node
-    : tao::pegtl::until<tao::pegtl::eof,
-                        tao::pegtl::sor<plain_scalar, tao::pegtl::space>> {};
-struct yaml : tao::pegtl::must<node> {};
+struct node : until<eof, sor<plain_scalar, space>> {};
+struct yaml : must<node> {};
 
 // ===========
 // = Actions =
 // ===========
 
 // Disable actions for rules
-template <typename Rule> struct action : tao::pegtl::nothing<Rule> {};
+template <typename Rule> struct action : nothing<Rule> {};
 
 /** This struct contains an action for plain scalars. */
 template <> struct action<plain_scalar> {
