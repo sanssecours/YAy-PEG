@@ -28,6 +28,7 @@ class State {
   /** This stack stores a key for each level of the current key name. */
   std::stack<kdb::Key> parents;
 
+public:
   /** This enum specifies the context of the YAML data that the parser currently
       analyzes. */
   enum Context {
@@ -45,7 +46,9 @@ class State {
     flow_out
   };
 
-public:
+  /** This variable stores the context of the currently parsed YAML data. */
+  Context context{block_in};
+
   /**
    * @brief This constructor creates a State using the given parent key.
    *
