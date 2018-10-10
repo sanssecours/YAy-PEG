@@ -28,6 +28,23 @@ class State {
   /** This stack stores a key for each level of the current key name. */
   std::stack<kdb::Key> parents;
 
+  /** This enum specifies the context of the YAML data that the parser currently
+      analyzes. */
+  enum Context {
+    /** The current input is part of a block sequence. */
+    block_in,
+    /** The current input is outside of a block sequence. */
+    block_out,
+    /** The current input is part of a implicit block key. */
+    block_key,
+    /** The current input is part of a implicit flow key. */
+    flow_key,
+    /** The current input is part of a value inside a flow collection. */
+    flow_in,
+    /** The current input is part of a value outside a flow collection. */
+    flow_out
+  };
+
 public:
   /**
    * @brief This constructor creates a State using the given parent key.
