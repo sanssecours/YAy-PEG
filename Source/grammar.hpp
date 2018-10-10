@@ -48,6 +48,7 @@ extern shared_ptr<spdlog::logger> console;
 
 namespace yaypeg {
 
+using tao::pegtl::at;
 using tao::pegtl::eof;
 using tao::pegtl::must;
 using tao::pegtl::not_at;
@@ -72,6 +73,12 @@ struct c_printable
 // [3]
 struct c_byte_order_mark : one<0xFEFF> {};
 
+// [22]
+struct c_indicator : one<'-', '?', ':', ',', '[', ']', '{', '}', '#', '&', '*',
+                         '!', ',', '>', '\'', '"', '%', '@', '`'> {};
+// [23]
+struct c_flow_indicator : one<',', '[', ']', '{', '}'> {};
+
 // [24]
 struct b_line_feed : one<'\n'> {};
 // [25]
@@ -89,6 +96,37 @@ struct s_tab : one<'\t'> {};
 struct s_white : sor<s_space, s_tab> {};
 // [34]
 struct ns_char : seq<not_at<s_white>, nb_char> {};
+
+// [126]
+struct ns_plain_safe;
+struct ns_plain_first : sor<seq<not_at<c_indicator>, ns_char>,
+                            one<'?', ':', '-'>, ns_plain_safe> {};
+
+// [128]
+struct ns_plain_safe_out : ns_char {};
+// [129]
+struct ns_plain_safe_in : seq<not_at<c_flow_indicator>, ns_char> {};
+
+// [127]
+struct ns_plain_safe {
+  template <tao::pegtl::apply_mode ApplyMode,
+            tao::pegtl::rewind_mode RewindMode,
+            template <typename...> class Action,
+            template <typename...> class Control, typename Input>
+  static bool match(Input &input, State &state) {
+    if (state.context == State::Context::flow_out ||
+        state.context == State::Context::block_key) {
+      return ns_plain_safe_out::match<ApplyMode, RewindMode, Action, Control>(
+          input, state);
+    }
+    return ns_plain_safe_in::match<ApplyMode, RewindMode, Action, Control>(
+        input, state);
+  }
+};
+
+// [130]
+struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
+                           seq<one<':'>, at<ns_plain_safe>>> {};
 
 struct plain_scalar : plus<ns_char> {};
 struct node : until<eof, seq<plain_scalar, opt<b_line_feed>>> {};
