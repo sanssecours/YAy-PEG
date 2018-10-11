@@ -49,6 +49,7 @@ extern shared_ptr<spdlog::logger> console;
 namespace yaypeg {
 
 using tao::pegtl::at;
+using tao::pegtl::bol;
 using tao::pegtl::eof;
 using tao::pegtl::must;
 using tao::pegtl::not_at;
@@ -57,6 +58,7 @@ using tao::pegtl::opt;
 using tao::pegtl::plus;
 using tao::pegtl::seq;
 using tao::pegtl::sor;
+using tao::pegtl::star;
 using tao::pegtl::until;
 using tao::pegtl::utf8::one;
 using tao::pegtl::utf8::ranges;
@@ -87,6 +89,13 @@ struct b_carriage_return : one<'\r'> {};
 struct b_char : sor<b_line_feed, b_carriage_return> {};
 // [27]
 struct nb_char : seq<not_at<sor<b_char, c_byte_order_mark>>, c_printable> {};
+// [28]
+struct b_break
+    : sor<seq<b_carriage_return, b_line_feed>, b_carriage_return, b_line_feed> {
+};
+
+// [30]
+struct b_non_content : b_break {};
 
 // [31]
 struct s_space : one<' '> {};
@@ -96,6 +105,9 @@ struct s_tab : one<'\t'> {};
 struct s_white : sor<s_space, s_tab> {};
 // [34]
 struct ns_char : seq<not_at<s_white>, nb_char> {};
+
+// [66]
+struct s_separate_in_line : sor<plus<s_white>, bol> {};
 
 // [126]
 struct ns_plain_safe;
@@ -136,6 +148,11 @@ struct last_was_ns_plain_safe {
 struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
                            seq<last_was_ns_plain_safe, one<'#'>>,
                            seq<one<':'>, at<ns_plain_safe>>> {};
+
+// [132]
+struct nb_ns_plain_in_line : star<seq<star<s_white>>, ns_plain_char> {};
+// [133]
+struct ns_plain_one_line : seq<ns_plain_first, nb_ns_plain_in_line> {};
 
 struct plain_scalar : plus<ns_char> {};
 struct node : until<eof, seq<plain_scalar, opt<b_line_feed>>> {};
