@@ -124,7 +124,17 @@ struct ns_plain_safe {
 };
 
 // [130]
+struct last_was_ns_plain_safe {
+  template <tao::pegtl::apply_mode ApplyMode,
+            tao::pegtl::rewind_mode RewindMode,
+            template <typename...> class Action,
+            template <typename...> class Control, typename Input>
+  static bool match(Input &, State &state) {
+    return state.lastRuleWasNsChar();
+  }
+};
 struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
+                           seq<last_was_ns_plain_safe, one<'#'>>,
                            seq<one<':'>, at<ns_plain_safe>>> {};
 
 struct plain_scalar : plus<ns_char> {};
