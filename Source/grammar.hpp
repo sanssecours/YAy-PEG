@@ -114,8 +114,7 @@ struct ns_plain_safe {
             template <typename...> class Action,
             template <typename...> class Control, typename Input>
   static bool match(Input &input, State &state) {
-    if (state.context == State::Context::flow_out ||
-        state.context == State::Context::block_key) {
+    if (state.contextFlowOut() || state.contextBlockKey()) {
       return ns_plain_safe_out::match<ApplyMode, RewindMode, Action, Control>(
           input, state);
     }

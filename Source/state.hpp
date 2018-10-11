@@ -22,13 +22,7 @@ namespace yaypeg {
 
 /** The parser uses this class to convert YAML data to a key set. */
 class State {
-  /** This key set stores the converted YAML data. */
-  kdb::KeySet keys;
 
-  /** This stack stores a key for each level of the current key name. */
-  std::stack<kdb::Key> parents;
-
-public:
   /** This enum specifies the context of the YAML data that the parser currently
       analyzes. */
   enum Context {
@@ -46,9 +40,16 @@ public:
     flow_out
   };
 
+  /** This key set stores the converted YAML data. */
+  kdb::KeySet keys;
+
+  /** This stack stores a key for each level of the current key name. */
+  std::stack<kdb::Key> parents;
+
   /** This variable stores the context of the currently parsed YAML data. */
   Context context{block_in};
 
+public:
   /**
    * @brief This constructor creates a State using the given parent key.
    *
@@ -56,6 +57,26 @@ public:
    *               this class stores.
    */
   State(kdb::Key const &parent);
+
+  /**
+   * @brief This method checks if the parser currently analyzes an implicit
+   *        block key.
+   *
+   * @retval true If the current input is part of an implicit block key
+   * @retval false If the current input is not part of an implicit block key
+   */
+  bool contextBlockKey() const;
+
+  /**
+   * @brief This method checks if the parser currently analyzes a value outside
+   *        a flow collection.
+   *
+   * @retval true If the current input is part of a value outside a flow
+   *              collection
+   * @retval false If the current input is not part of a value outside a flow
+   *               collection
+   */
+  bool contextFlowOut() const;
 
   /**
    * @brief This method stores the current parent key in the key set.

@@ -55,6 +55,26 @@ namespace yaypeg {
 State::State(Key const &parent) { parents.push(parent.dup()); }
 
 /**
+ * @brief This method checks if the parser currently analyzes an implicit
+ *        block key.
+ *
+ * @retval true If the current input is part of an implicit block key
+ * @retval false If the current input is not part of an implicit block key
+ */
+bool State::contextBlockKey() const { return context == Context::block_key; }
+
+/**
+ * @brief This method checks if the parser currently analyzes a value outside
+ *        a flow collection.
+ *
+ * @retval true If the current input is part of a value outside a flow
+ *              collection
+ * @retval false If the current input is not part of a value outside a flow
+ *               collection
+ */
+bool State::contextFlowOut() const { return context == Context::flow_out; }
+
+/**
  * @brief This method stores the current parent key in the key set.
  *
  * @param text This variable specifies the text that should be used as value
