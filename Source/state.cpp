@@ -64,6 +64,25 @@ State::State(Key const &parent) { parents.push(parent.dup()); }
 bool State::contextBlockKey() const { return context == Context::block_key; }
 
 /**
+ * @brief This method checks if the parser currently analyzes an implicit
+ *        flow key.
+ *
+ * @retval true If the current input is part of an implicit flow key
+ * @retval false If the current input is not part of an implicit flow key
+ */
+bool State::contextFlowKey() const { return context == Context::flow_key; }
+
+/**
+ * @brief This method checks if the parser currently analyzes a value inside
+ *        a flow collection.
+ *
+ * @retval true If the current input is part of a value inside a flow
+ *              collection
+ * @retval false If the current input is not part of a flow value
+ */
+bool State::contextFlowIn() const { return context == Context::flow_in; }
+
+/**
  * @brief This method checks if the parser currently analyzes a value outside
  *        a flow collection.
  *
