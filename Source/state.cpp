@@ -94,6 +94,23 @@ bool State::contextFlowIn() const { return context == Context::flow_in; }
 bool State::contextFlowOut() const { return context == Context::flow_out; }
 
 /**
+ * @brief This method checks if the last matched grammar rule was `ns_char`.
+ *
+ * @retval true If the last matched rule was `ns_char`
+ * @retval false If the last matched rule was not `ns_char`
+ */
+bool State::lastRuleWasNsChar() const { return lastWasNsChar; }
+
+/**
+ * @brief This method changes the state updating the boolean value that
+ *        specifies if the last matched grammar rule was `ns_char`.
+ *
+ * @param value This value has to be `true` if the last matched rule was
+ *              `ns_char`, or false otherwise.
+ */
+void State::setLastRuleWasNsChar(bool value) { lastWasNsChar = value; }
+
+/**
  * @brief This method stores the current parent key in the key set.
  *
  * @param text This variable specifies the text that should be used as value

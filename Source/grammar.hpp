@@ -135,8 +135,34 @@ struct yaml : must<node> {};
 // = Actions =
 // ===========
 
-// Disable actions for rules
-template <typename Rule> struct action : nothing<Rule> {};
+/** This structure contains the default action for rules. */
+template <typename Rule> struct action {
+  /**
+   * @brief PEGTL will call this function after it matched a rule that has no
+   *        explicit action.
+   *
+   * @param input This parameter stores the input matched by the grammar rule.
+   * @param state This parameter stores the current state of the parser.
+   */
+  template <typename Input> static void apply(const Input &, State &state) {
+    LOG("Apply default action");
+    state.setLastRuleWasNsChar(false);
+  }
+};
+
+/** This struct contains an action for `ns_char`. */
+template <> struct action<ns_char> {
+
+  /**
+   * @brief PEGTL will call this function after it matched a plain scalar.
+   *
+   * @param state This parameter stores the current state of the parser.
+   */
+  template <typename Input> static void apply(const Input &, State &state) {
+    LOG("Current input matched rule `ns_char`");
+    state.setLastRuleWasNsChar(true);
+  }
+};
 
 /** This struct contains an action for plain scalars. */
 template <> struct action<plain_scalar> {
@@ -152,6 +178,7 @@ template <> struct action<plain_scalar> {
   static void apply(const Input &input, State &state) {
     LOGF("Matched plain scalar with value “{}”", input.string());
     state.appendKey(input.string());
+    state.setLastRuleWasNsChar(false);
   }
 };
 

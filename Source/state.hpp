@@ -49,6 +49,12 @@ class State {
   /** This variable stores the context of the currently parsed YAML data. */
   Context context{block_in};
 
+  /**
+   * This variable specifies if the last character matched the grammar rule
+   * `ns_char`.
+   */
+  bool lastWasNsChar;
+
 public:
   /**
    * @brief This constructor creates a State using the given parent key.
@@ -96,6 +102,23 @@ public:
    *               collection
    */
   bool contextFlowOut() const;
+
+  /**
+   * @brief This method checks if the last matched grammar rule was `ns_char`.
+   *
+   * @retval true If the last matched rule was `ns_char`
+   * @retval false If the last matched rule was not `ns_char`
+   */
+  bool lastRuleWasNsChar() const;
+
+  /**
+   * @brief This method changes the state updating the boolean value that
+   *        specifies if the last matched grammar rule was `ns_char`.
+   *
+   * @param value This value has to be `true` if the last matched rule was
+   *              `ns_char`, or false otherwise.
+   */
+  void setLastRuleWasNsChar(bool value);
 
   /**
    * @brief This method stores the current parent key in the key set.
