@@ -12,10 +12,13 @@
 #include "grammar.hpp"
 #include "state.hpp"
 
+#include <tao/pegtl/analyze.hpp>
+
 using std::string;
 
 using tao::pegtl::file_input;
 using tao::pegtl::parse;
+using tao::pegtl::analyze;
 
 using CppKey = kdb::Key;
 using CppKeySet = kdb::KeySet;
@@ -40,6 +43,9 @@ namespace yaypeg {
  */
 int addToKeySet(CppKeySet &keySet, CppKey &parent, string const &filename) {
   State state{parent};
+
+  // Check grammar for problematic code
+  analyze< yaml >();
 
   file_input<> input{filename};
   parse<yaml, action>(input, state);
