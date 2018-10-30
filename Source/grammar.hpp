@@ -11,6 +11,8 @@
 
 // -- Macros -------------------------------------------------------------------
 
+#define TAO_PEGTL_NAMESPACE yaypeg
+
 #define SPDLOG_TRACE_ON
 
 #if defined(__clang__)
@@ -48,20 +50,20 @@ extern shared_ptr<spdlog::logger> console;
 
 namespace yaypeg {
 
-using tao::pegtl::at;
-using tao::pegtl::bol;
-using tao::pegtl::eof;
-using tao::pegtl::must;
-using tao::pegtl::not_at;
-using tao::pegtl::nothing;
-using tao::pegtl::opt;
-using tao::pegtl::plus;
-using tao::pegtl::seq;
-using tao::pegtl::sor;
-using tao::pegtl::star;
-using tao::pegtl::until;
-using tao::pegtl::utf8::one;
-using tao::pegtl::utf8::ranges;
+using tao::yaypeg::at;
+using tao::yaypeg::bol;
+using tao::yaypeg::eof;
+using tao::yaypeg::must;
+using tao::yaypeg::not_at;
+using tao::yaypeg::nothing;
+using tao::yaypeg::opt;
+using tao::yaypeg::plus;
+using tao::yaypeg::seq;
+using tao::yaypeg::sor;
+using tao::yaypeg::star;
+using tao::yaypeg::until;
+using tao::yaypeg::utf8::one;
+using tao::yaypeg::utf8::ranges;
 
 // ===========
 // = Grammar =
@@ -121,8 +123,8 @@ struct ns_plain_safe_in : seq<not_at<c_flow_indicator>, ns_char> {};
 
 // [127]
 struct ns_plain_safe {
-  template <tao::pegtl::apply_mode ApplyMode,
-            tao::pegtl::rewind_mode RewindMode,
+  template <tao::yaypeg::apply_mode ApplyMode,
+            tao::yaypeg::rewind_mode RewindMode,
             template <typename...> class Action,
             template <typename...> class Control, typename Input>
   static bool match(Input &input, State &state) {
@@ -137,8 +139,8 @@ struct ns_plain_safe {
 
 // [130]
 struct last_was_ns_plain_safe {
-  template <tao::pegtl::apply_mode ApplyMode,
-            tao::pegtl::rewind_mode RewindMode,
+  template <tao::yaypeg::apply_mode ApplyMode,
+            tao::yaypeg::rewind_mode RewindMode,
             template <typename...> class Action,
             template <typename...> class Control, typename Input>
   static bool match(Input &, State &state) {

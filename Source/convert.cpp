@@ -6,6 +6,10 @@
  * @copyright BSD License (see LICENSE.md or https://www.libelektra.org)
  */
 
+// -- Macros -------------------------------------------------------------------
+
+#define TAO_PEGTL_NAMESPACE yaypeg
+
 // -- Imports ------------------------------------------------------------------
 
 #include "convert.hpp"
@@ -16,9 +20,9 @@
 
 using std::string;
 
-using tao::pegtl::file_input;
-using tao::pegtl::parse;
-using tao::pegtl::analyze;
+using tao::yaypeg::analyze;
+using tao::yaypeg::file_input;
+using tao::yaypeg::parse;
 
 using CppKey = kdb::Key;
 using CppKeySet = kdb::KeySet;
