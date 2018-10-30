@@ -6,10 +6,6 @@
  * @copyright BSD License (see LICENSE.md or https://www.libelektra.org)
  */
 
-// -- Macros -------------------------------------------------------------------
-
-#define TAO_PEGTL_NAMESPACE yaypeg
-
 // -- Imports ------------------------------------------------------------------
 
 #include "convert.hpp"
@@ -20,14 +16,16 @@
 
 using std::string;
 
-using tao::yaypeg::analyze;
-using tao::yaypeg::file_input;
-using tao::yaypeg::parse;
-
 using CppKey = kdb::Key;
 using CppKeySet = kdb::KeySet;
 
 namespace yaypeg {
+
+#define TAO_PEGTL_NAMESPACE yaypeg
+
+using tao::yaypeg::analyze;
+using tao::yaypeg::file_input;
+using tao::yaypeg::parse;
 
 // -- Function -----------------------------------------------------------------
 
@@ -49,7 +47,7 @@ int addToKeySet(CppKeySet &keySet, CppKey &parent, string const &filename) {
   State state{parent};
 
   // Check grammar for problematic code
-  analyze< yaml >();
+  analyze<yaml>();
 
   file_input<> input{filename};
   parse<yaml, action>(input, state);
