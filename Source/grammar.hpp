@@ -165,7 +165,7 @@ struct yaml : must<node> {};
 // ===========
 
 /** This structure contains the default action for rules. */
-template <typename Rule> struct action {
+template <typename Rule> struct base {
   /**
    * @brief PEGTL will call this function after it matched a rule that has no
    *        explicit action.
@@ -178,6 +178,7 @@ template <typename Rule> struct action {
     state.setLastRuleWasNsChar(false);
   }
 };
+template <typename Rule> struct action : base<Rule> {};
 
 /** This struct contains an action for `ns_char`. */
 template <> struct action<ns_char> {
@@ -194,7 +195,7 @@ template <> struct action<ns_char> {
 };
 
 /** This struct contains an action for plain scalars. */
-template <> struct action<plain_scalar> {
+template <> struct action<plain_scalar> : base<plain_scalar> {
 
   /**
    * @brief PEGTL will call this function after it matched a plain scalar.
@@ -207,7 +208,6 @@ template <> struct action<plain_scalar> {
   static void apply(const Input &input, State &state) {
     LOGF("Matched plain scalar with value “{}”", input.string());
     state.appendKey(input.string());
-    state.setLastRuleWasNsChar(false);
   }
 };
 
