@@ -13,6 +13,7 @@
 #include "state.hpp"
 
 #include <tao/pegtl/analyze.hpp>
+#include <tao/pegtl/contrib/tracer.hpp>
 
 using std::string;
 
@@ -48,6 +49,7 @@ int addToKeySet(CppKeySet &keySet, CppKey &parent, string const &filename) {
   using std::cerr;
   using std::endl;
   using tao::yaypeg::parse_error;
+  using tao::yaypeg::tracer;
 
   State state{parent};
 
@@ -57,7 +59,7 @@ int addToKeySet(CppKeySet &keySet, CppKey &parent, string const &filename) {
   file_input<> input{filename};
 
   try {
-    parse<yaml, action>(input, state);
+    parse<yaml, action, tracer>(input, state);
   } catch (parse_error const &error) {
     cerr << error.what() << endl;
     return -1;
