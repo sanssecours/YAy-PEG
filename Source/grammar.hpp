@@ -33,6 +33,7 @@
 #include <iostream>
 
 #include <tao/pegtl.hpp>
+#include <tao/pegtl/analyze.hpp>
 
 #include <kdb.hpp>
 
@@ -53,14 +54,17 @@ namespace yaypeg {
 using tao::yaypeg::at;
 using tao::yaypeg::bol;
 using tao::yaypeg::eof;
+using tao::yaypeg::failure;
 using tao::yaypeg::must;
 using tao::yaypeg::not_at;
 using tao::yaypeg::nothing;
 using tao::yaypeg::opt;
 using tao::yaypeg::plus;
+using tao::yaypeg::rep;
 using tao::yaypeg::seq;
 using tao::yaypeg::sor;
 using tao::yaypeg::star;
+using tao::yaypeg::success;
 using tao::yaypeg::until;
 using tao::yaypeg::utf8::one;
 using tao::yaypeg::utf8::ranges;
@@ -107,6 +111,35 @@ struct s_tab : one<'\t'> {};
 struct s_white : sor<s_space, s_tab> {};
 // [34]
 struct ns_char : seq<not_at<s_white>, nb_char> {};
+
+// [63]
+template <size_t repetitions> struct s_indent : rep<repetitions, s_space> {};
+
+template <size_t whitespaces> struct s_indent_plus {
+  using analyze_t =
+      tao::yaypeg::analysis::generic<tao::yaypeg::analysis::rule_type::ANY>;
+
+  template <tao::yaypeg::apply_mode, tao::yaypeg::rewind_mode,
+            template <typename...> class, template <typename...> class,
+            typename Input>
+  static bool match(Input &input, State &state) {
+    if (input.size(whitespaces) <= whitespaces) {
+      return false;
+    }
+    auto end = input.begin() + (whitespaces - state.indentation.top());
+    for (auto current = input.begin(); current != end; current++) {
+      LOGF("Current: “{}”", *current);
+      if (*current != ' ') {
+        return false;
+      }
+    }
+    input.bump(whitespaces);
+    state.indentation.push(whitespaces);
+    return true;
+  }
+};
+
+struct pop_indent : success {};
 
 // [66]
 struct s_separate_in_line : sor<plus<s_white>, bol> {};
@@ -158,7 +191,7 @@ struct ns_plain_one_line : seq<ns_plain_first, nb_ns_plain_in_line> {};
 
 struct plain_scalar : plus<ns_char> {};
 struct node : until<eof, seq<plain_scalar, opt<b_line_feed>>> {};
-struct yaml : must<node> {};
+struct yaml : sor<seq<s_indent_plus<2>, pop_indent, failure>> {};
 
 // ===========
 // = Actions =
@@ -191,6 +224,14 @@ template <> struct action<ns_char> {
   template <typename Input> static void apply(const Input &, State &state) {
     LOG("Current input matched rule `ns_char`");
     state.setLastRuleWasNsChar(true);
+  }
+};
+
+template <> struct action<pop_indent> {
+  static void apply0(State &state) {
+    LOGF("Indentation before: {}", state.indentation.top());
+    state.indentation.pop();
+    LOGF("Indentation after: {}", state.indentation.top());
   }
 };
 

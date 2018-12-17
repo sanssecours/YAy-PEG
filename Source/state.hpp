@@ -56,6 +56,8 @@ class State {
   bool lastWasNsChar;
 
 public:
+  std::stack<size_t> indentation{{0}};
+
   /**
    * @brief This constructor creates a State using the given parent key.
    *
