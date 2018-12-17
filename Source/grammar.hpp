@@ -47,7 +47,7 @@ using std::shared_ptr;
 extern shared_ptr<spdlog::logger> console;
 #endif
 
-// -- Grammar ------------------------------------------------------------------
+// -- Rules --------------------------------------------------------------------
 
 namespace yaypeg {
 
