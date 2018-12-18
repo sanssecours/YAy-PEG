@@ -53,7 +53,7 @@ void printOutput(KeySet const &keys) {
 int main(int argc, char *argv[]) {
 
 #if defined(__clang__)
-  set_pattern("[%H:%M:%S:%e] %v");
+  set_pattern("%v");
   set_level(trace);
   console = stderr_color_mt("console");
 #endif
