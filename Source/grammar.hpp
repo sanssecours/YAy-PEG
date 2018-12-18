@@ -68,11 +68,7 @@ struct push_indent {
          input.size(indent + 1) >= indent + 1 && *current == ' '; ++current) {
       ++indent;
     }
-
-    if (context.indentation.empty() || context.indentation.back() != indent) {
-      LOGF("Indentations: {}", context.toString());
-      context.indentation.push_back(indent);
-    }
+    context.indentation.push_back(indent);
     return true;
   }
 };
