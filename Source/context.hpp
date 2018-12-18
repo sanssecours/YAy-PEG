@@ -19,7 +19,6 @@
 
 namespace yaypeg {
 
-/** The parser uses this class to convert YAML data to a key set. */
 struct Context {
   std::deque<size_t> indentation{0};
   std::string toString() const noexcept;
