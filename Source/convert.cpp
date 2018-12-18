@@ -10,7 +10,7 @@
 
 #include "convert.hpp"
 #include "context.hpp"
-#include "grammar.hpp"
+#include "parser.hpp"
 
 #define TAO_PEGTL_NAMESPACE yaypeg
 

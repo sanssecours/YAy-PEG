@@ -54,7 +54,7 @@ set(SOURCE_DIRECTORY Source)
 set(SOURCE_FILES
     ${SOURCE_DIRECTORY}/convert.hpp
     ${SOURCE_DIRECTORY}/convert.cpp
-    ${SOURCE_DIRECTORY}/grammar.hpp
+    ${SOURCE_DIRECTORY}/parser.hpp
     ${SOURCE_DIRECTORY}/context.hpp
     ${SOURCE_DIRECTORY}/context.cpp
     ${SOURCE_DIRECTORY}/yaypeg.cpp)
