@@ -51,23 +51,8 @@ extern shared_ptr<spdlog::logger> console;
 
 namespace yaypeg {
 
-using tao::yaypeg::at;
-using tao::yaypeg::bol;
-using tao::yaypeg::eof;
-using tao::yaypeg::failure;
-using tao::yaypeg::must;
-using tao::yaypeg::not_at;
-using tao::yaypeg::nothing;
-using tao::yaypeg::opt;
-using tao::yaypeg::plus;
-using tao::yaypeg::rep;
 using tao::yaypeg::seq;
-using tao::yaypeg::sor;
-using tao::yaypeg::star;
 using tao::yaypeg::success;
-using tao::yaypeg::until;
-using tao::yaypeg::utf8::one;
-using tao::yaypeg::utf8::ranges;
 
 // ===========
 // = Grammar =
