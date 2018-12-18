@@ -85,15 +85,7 @@ struct yaml : seq<push_indent> {};
 // = Actions =
 // ===========
 
-/** This structure contains the default action for rules. */
 template <typename Rule> struct base {
-  /**
-   * @brief PEGTL will call this function after it matched a rule that has no
-   *        explicit action.
-   *
-   * @param input This parameter stores the input matched by the grammar rule.
-   * @param state This parameter stores the current state of the parser.
-   */
   template <typename Input> static void apply(const Input &, State &state) {
     LOG("Apply default action");
     state.setLastRuleWasNsChar(false);
