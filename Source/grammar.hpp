@@ -73,7 +73,8 @@ struct push_indent {
   }
 };
 
-struct yaml : tao::TAO_PEGTL_NAMESPACE::seq<push_indent> {};
+struct node : tao::TAO_PEGTL_NAMESPACE::seq<push_indent> {};
+struct yaml : node {};
 
 // ===========
 // = Actions =
