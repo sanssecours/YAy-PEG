@@ -15,10 +15,13 @@
 
 namespace yaypeg {
 
-std::string Context::toString() const noexcept {
-  std::string result = "[ ";
+using std::string;
+using std::to_string;
+
+string Context::toString() const noexcept {
+  string result = "[ ";
   for (auto const &indent : indentation) {
-    result += std::to_string(indent) + " ";
+    result += to_string(indent) + " ";
   }
   return result + " ]";
 }
