@@ -52,7 +52,6 @@ extern shared_ptr<spdlog::logger> console;
 namespace yaypeg {
 
 using tao::yaypeg::seq;
-using tao::yaypeg::success;
 
 // ===========
 // = Grammar =
@@ -80,8 +79,6 @@ struct push_indent {
   }
 };
 
-struct pop_indent : success {};
-
 struct yaml : seq<push_indent> {};
 
 // ===========
@@ -102,11 +99,8 @@ template <typename Rule> struct base {
     state.setLastRuleWasNsChar(false);
   }
 };
-template <typename Rule> struct action : base<Rule> {};
 
-template <> struct action<pop_indent> {
-  static void apply0(State &state) { state.indentation.pop_back(); }
-};
+template <typename Rule> struct action : base<Rule> {};
 
 } // namespace yaypeg
 
