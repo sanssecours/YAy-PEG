@@ -9,8 +9,8 @@
 // -- Imports ------------------------------------------------------------------
 
 #include "convert.hpp"
+#include "context.hpp"
 #include "grammar.hpp"
-#include "state.hpp"
 
 #include <tao/pegtl/analyze.hpp>
 #include <tao/pegtl/contrib/tracer.hpp>
@@ -51,7 +51,7 @@ int addToKeySet(CppKeySet &keySet, CppKey &, string const &filename) {
   using tao::yaypeg::parse_error;
   using tao::yaypeg::tracer;
 
-  State state{};
+  Context context{};
 
   // Check grammar for problematic code
   analyze<yaml>();
@@ -59,7 +59,7 @@ int addToKeySet(CppKeySet &keySet, CppKey &, string const &filename) {
   file_input<> input{filename};
 
   try {
-    parse<yaml, action, tracer>(input, state);
+    parse<yaml, action, tracer>(input, context);
   } catch (parse_error const &error) {
     cerr << error.what() << endl;
     return -1;

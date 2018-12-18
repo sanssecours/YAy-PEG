@@ -37,7 +37,7 @@
 
 #include <kdb.hpp>
 
-#include "state.hpp"
+#include "context.hpp"
 
 #if defined(__clang__)
 #include <spdlog/spdlog.h>
@@ -64,16 +64,16 @@ struct push_indent {
   template <tao::yaypeg::apply_mode, tao::yaypeg::rewind_mode,
             template <typename...> class, template <typename...> class,
             typename Input>
-  static bool match(Input &input, State &state) {
+  static bool match(Input &input, Context &context) {
     size_t indent = 0;
     for (auto current = input.begin();
          input.size(indent + 1) >= indent + 1 && *current == ' '; ++current) {
       ++indent;
     }
 
-    if (state.indentation.empty() || state.indentation.back() != indent) {
-      LOGF("Indentations: {}", state.toString());
-      state.indentation.push_back(indent);
+    if (context.indentation.empty() || context.indentation.back() != indent) {
+      LOGF("Indentations: {}", context.toString());
+      context.indentation.push_back(indent);
     }
     return true;
   }
@@ -86,7 +86,7 @@ struct yaml : seq<push_indent> {};
 // ===========
 
 template <typename Rule> struct base {
-  template <typename Input> static void apply(const Input &, State &) {
+  template <typename Input> static void apply(const Input &, Context &) {
     LOG("Apply default action");
   }
 };
