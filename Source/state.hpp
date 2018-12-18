@@ -12,6 +12,7 @@
 
 // -- Imports ------------------------------------------------------------------
 
+#include <deque>
 #include <stack>
 
 #include <kdb.hpp>
@@ -56,7 +57,7 @@ class State {
   bool lastWasNsChar;
 
 public:
-  std::stack<size_t> indentation{{0}};
+  std::deque<size_t> indentation{0};
 
   /**
    * @brief This constructor creates a State using the given parent key.
@@ -136,6 +137,8 @@ public:
    * @return A key set representing the parsed YAML data
    */
   kdb::KeySet getKeySet() const;
+
+  std::string toString() const noexcept;
 };
 
 } // namespace yaypeg

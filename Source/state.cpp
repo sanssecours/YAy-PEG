@@ -129,4 +129,12 @@ void State::appendKey(string const &text) {
  */
 KeySet State::getKeySet() const { return keys; };
 
+std::string State::toString() const noexcept {
+  std::string result = "[ ";
+  for (auto const &indent : indentation) {
+    result += std::to_string(indent) + " ";
+  }
+  return result + " ]";
+}
+
 } // namespace yaypeg

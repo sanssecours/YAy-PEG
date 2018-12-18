@@ -126,7 +126,7 @@ template <size_t whitespaces> struct s_indent_plus {
     if (input.size(whitespaces) <= whitespaces) {
       return false;
     }
-    auto end = input.begin() + (whitespaces - state.indentation.top());
+    auto end = input.begin() + (whitespaces - state.indentation.back());
     for (auto current = input.begin(); current != end; current++) {
       LOGF("Current: “{}”", *current);
       if (*current != ' ') {
@@ -134,7 +134,30 @@ template <size_t whitespaces> struct s_indent_plus {
       }
     }
     input.bump(whitespaces);
-    state.indentation.push(whitespaces);
+    state.indentation.push_back(whitespaces);
+    return true;
+  }
+};
+
+struct push_indent {
+  using analyze_t =
+      tao::yaypeg::analysis::generic<tao::yaypeg::analysis::rule_type::ANY>;
+
+  template <tao::yaypeg::apply_mode, tao::yaypeg::rewind_mode,
+            template <typename...> class, template <typename...> class,
+            typename Input>
+  static bool match(Input &input, State &state) {
+    // TODO: Check for non-empty line
+    size_t indent = 0;
+    for (auto current = input.begin();
+         input.size(indent + 1) >= indent + 1 && *current == ' '; ++current) {
+      ++indent;
+    }
+
+    if (state.indentation.empty() || state.indentation.back() != indent) {
+      LOGF("Indentations: {}", state.toString());
+      state.indentation.push_back(indent);
+    }
     return true;
   }
 };
@@ -191,7 +214,7 @@ struct ns_plain_one_line : seq<ns_plain_first, nb_ns_plain_in_line> {};
 
 struct plain_scalar : plus<ns_char> {};
 struct node : until<eof, seq<plain_scalar, opt<b_line_feed>>> {};
-struct yaml : sor<seq<s_indent_plus<2>, pop_indent, failure>> {};
+struct yaml : seq<push_indent> {};
 
 // ===========
 // = Actions =
@@ -228,11 +251,7 @@ template <> struct action<ns_char> {
 };
 
 template <> struct action<pop_indent> {
-  static void apply0(State &state) {
-    LOGF("Indentation before: {}", state.indentation.top());
-    state.indentation.pop();
-    LOGF("Indentation after: {}", state.indentation.top());
-  }
+  static void apply0(State &state) { state.indentation.pop_back(); }
 };
 
 /** This struct contains an action for plain scalars. */
