@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @brief This file contains the implementation of a struct used by the
+ * @brief This file contains the definition of a struct used by the
  *        parser to store contextual data.
  *
  * @copyright BSD License (see LICENSE.md or https://www.libelektra.org)
