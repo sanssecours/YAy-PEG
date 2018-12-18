@@ -45,13 +45,13 @@ using tao::yaypeg::parse;
  *            given keyset
  * @retval  1 if parsing was successful and the function did change `keySet`
  */
-int addToKeySet(CppKeySet &keySet, CppKey &parent, string const &filename) {
+int addToKeySet(CppKeySet &keySet, CppKey &, string const &filename) {
   using std::cerr;
   using std::endl;
   using tao::yaypeg::parse_error;
   using tao::yaypeg::tracer;
 
-  State state{parent};
+  State state{};
 
   // Check grammar for problematic code
   analyze<yaml>();
@@ -65,7 +65,7 @@ int addToKeySet(CppKeySet &keySet, CppKey &parent, string const &filename) {
     return -1;
   }
 
-  CppKeySet keys = state.getKeySet();
+  CppKeySet keys{};
 
   int status = (keys.size() <= 0) ? 0 : 1;
 

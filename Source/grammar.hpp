@@ -86,9 +86,8 @@ struct yaml : seq<push_indent> {};
 // ===========
 
 template <typename Rule> struct base {
-  template <typename Input> static void apply(const Input &, State &state) {
+  template <typename Input> static void apply(const Input &, State &) {
     LOG("Apply default action");
-    state.setLastRuleWasNsChar(false);
   }
 };
 
