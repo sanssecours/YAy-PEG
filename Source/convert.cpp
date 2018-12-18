@@ -12,21 +12,16 @@
 #include "context.hpp"
 #include "grammar.hpp"
 
+#define TAO_PEGTL_NAMESPACE yaypeg
+
 #include <tao/pegtl/analyze.hpp>
 #include <tao/pegtl/contrib/tracer.hpp>
 
-using std::string;
-
-using CppKey = kdb::Key;
-using CppKeySet = kdb::KeySet;
-
 namespace yaypeg {
 
-#define TAO_PEGTL_NAMESPACE yaypeg
-
-using tao::yaypeg::analyze;
-using tao::yaypeg::file_input;
-using tao::yaypeg::parse;
+using kdb::Key;
+using kdb::KeySet;
+using std::string;
 
 // -- Function -----------------------------------------------------------------
 
@@ -45,11 +40,14 @@ using tao::yaypeg::parse;
  *            given keyset
  * @retval  1 if parsing was successful and the function did change `keySet`
  */
-int addToKeySet(CppKeySet &keySet, CppKey &, string const &filename) {
+int addToKeySet(KeySet &keySet, Key &, string const &filename) {
   using std::cerr;
   using std::endl;
-  using tao::yaypeg::parse_error;
-  using tao::yaypeg::tracer;
+  using tao::TAO_PEGTL_NAMESPACE::analyze;
+  using tao::TAO_PEGTL_NAMESPACE::file_input;
+  using tao::TAO_PEGTL_NAMESPACE::parse;
+  using tao::TAO_PEGTL_NAMESPACE::parse_error;
+  using tao::TAO_PEGTL_NAMESPACE::tracer;
 
   Context context{};
 
@@ -65,7 +63,7 @@ int addToKeySet(CppKeySet &keySet, CppKey &, string const &filename) {
     return -1;
   }
 
-  CppKeySet keys{};
+  KeySet keys{};
 
   int status = (keys.size() <= 0) ? 0 : 1;
 
