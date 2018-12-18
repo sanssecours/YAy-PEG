@@ -51,8 +51,6 @@ extern shared_ptr<spdlog::logger> console;
 
 namespace yaypeg {
 
-using tao::yaypeg::seq;
-
 // ===========
 // = Grammar =
 // ===========
@@ -79,7 +77,7 @@ struct push_indent {
   }
 };
 
-struct yaml : seq<push_indent> {};
+struct yaml : tao::TAO_PEGTL_NAMESPACE::seq<push_indent> {};
 
 // ===========
 // = Actions =
