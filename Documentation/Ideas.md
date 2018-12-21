@@ -22,7 +22,9 @@ What about nested `seq` rules?
 ---
 
 Store old indentation in match function and restore old state on success
-See also: https://github.com/taocpp/PEGTL/issues/13
+See also:
+  - https://github.com/taocpp/PEGTL/issues/13
+  - https://github.com/taocpp/PEGTL/issues/32
 
 ## Simplified Parsing
 
@@ -36,18 +38,24 @@ See also: https://github.com/taocpp/PEGTL/issues/13
        2. Remove indentation
 
 ```c++
-node = seq<push_indent, sor<sibling, child>>; // Sibling: Indentation[end] == Indentation[end-1]
-// If Indentation is the same, remove top element from indentation stack.
-// Otherwise keep indentation
-child = seq<node, pop_indent>;
+node = seq<push_indent, node_or_pop_indent, pop_indent>;
+node_or_pop_indent = sor<sibling_or_child, pop_indent>;
+sibling_or_child = sor<child, sibling>;
+sibling = seq<same_indent, content>;
+child = seq<more_indent, content>;
+content = sor<scalar, map>;
+scalar = identifier;
+map = seq<scalar, one<':'>, node>;
+// child: indentation[end] > indentation[end-1] || indentation.size() <= 1
+// sibling: indentation[end] == indentation[end-1]
 ```
 
 ```yaml
-root          # [0]
-  level1      # [0, 2]
-    level2    # [0, 2, 6]
+root:         # [0]
+  level1:     # [0, 2]
+    level2:   # [0, 2, 6]
       level3  # [0, 2, 6, 8]
-  one         # [0, 2]
-  two         # [0, 2]
-  three       # [0, 2]
+  one:        # [0, 2]
+  two:        # [0, 2]
+  three:      # [0, 2]
 ```
