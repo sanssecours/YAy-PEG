@@ -73,8 +73,11 @@ struct push_indent {
   }
 };
 
-struct node : tao::TAO_PEGTL_NAMESPACE::seq<push_indent> {};
-struct yaml : node {};
+struct pop_indent : tao::TAO_PEGTL_NAMESPACE::success {};
+
+struct node
+    : tao::TAO_PEGTL_NAMESPACE::seq<tao::TAO_PEGTL_NAMESPACE::identifier> {};
+struct yaml : tao::TAO_PEGTL_NAMESPACE::seq<push_indent, node, pop_indent> {};
 
 // ===========
 // = Actions =
@@ -87,6 +90,13 @@ template <typename Rule> struct base {
 };
 
 template <typename Rule> struct action : base<Rule> {};
+
+template <> struct action<pop_indent> : base<pop_indent> {
+  template <typename Input> static void apply(const Input &, Context &context) {
+    context.indentation.pop_back();
+    LOGF("Context: {}", context.toString());
+  }
+};
 
 } // namespace yaypeg
 
