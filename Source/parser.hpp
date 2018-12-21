@@ -56,12 +56,12 @@ namespace yaypeg {
 // ===========
 
 struct push_indent {
-  using analyze_t =
-      tao::yaypeg::analysis::generic<tao::yaypeg::analysis::rule_type::ANY>;
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
 
-  template <tao::yaypeg::apply_mode, tao::yaypeg::rewind_mode,
-            template <typename...> class, template <typename...> class,
-            typename Input>
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
+            template <typename...> class, typename Input>
   static bool match(Input &input, Context &context) {
     size_t indent = 0;
     for (auto current = input.begin();
