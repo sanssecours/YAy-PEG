@@ -30,6 +30,7 @@
 
 // -- Imports ------------------------------------------------------------------
 
+#include <functional>
 #include <iostream>
 
 #include <tao/pegtl.hpp>
@@ -51,6 +52,13 @@ extern shared_ptr<spdlog::logger> console;
 
 namespace yaypeg {
 
+using tao::TAO_PEGTL_NAMESPACE::eolf;
+using tao::TAO_PEGTL_NAMESPACE::identifier;
+using tao::TAO_PEGTL_NAMESPACE::one;
+using tao::TAO_PEGTL_NAMESPACE::seq;
+using tao::TAO_PEGTL_NAMESPACE::sor;
+using tao::TAO_PEGTL_NAMESPACE::success;
+
 // ===========
 // = Grammar =
 // ===========
@@ -64,20 +72,77 @@ struct push_indent {
             template <typename...> class, typename Input>
   static bool match(Input &input, Context &context) {
     size_t indent = 0;
+    LOGF("Start: {}", *input.begin());
     for (auto current = input.begin();
          input.size(indent + 1) >= indent + 1 && *current == ' '; ++current) {
+      LOGF("Current: {}", *current);
       ++indent;
     }
     context.indentation.push_back(indent);
+    LOGF("Context: {}", context.toString());
     return true;
   }
 };
 
-struct pop_indent : tao::TAO_PEGTL_NAMESPACE::success {};
+struct test {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
 
-struct node
-    : tao::TAO_PEGTL_NAMESPACE::seq<tao::TAO_PEGTL_NAMESPACE::identifier> {};
-struct yaml : tao::TAO_PEGTL_NAMESPACE::seq<push_indent, node, pop_indent> {};
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
+            template <typename...> class, typename Input>
+  static bool match(Input &input, Context &) {
+    LOGF("First: “{}”", input.peek_byte());
+    return true;
+  }
+};
+
+template <typename Comparator, bool DefaultValue = false> struct indent {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
+            template <typename...> class, typename Input>
+  static bool match(Input &, Context &context) {
+    size_t levels = context.indentation.size();
+    if (levels <= 1) {
+      return DefaultValue;
+    }
+    return Comparator{}(context.indentation[levels - 1],
+                        context.indentation[levels - 2]);
+  }
+};
+
+struct consume_indent {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
+            template <typename...> class, typename Input>
+  static bool match(Input &input, Context &context) {
+    input.bump(context.indentation.back());
+    return true;
+  }
+};
+struct node;
+
+struct more_indent : indent<std::greater<size_t>> {};
+struct same_indent : indent<std::equal_to<size_t>> {};
+
+struct pop_indent : success {};
+
+struct scalar : identifier {};
+struct map : seq<scalar, one<':'>, eolf, node> {};
+struct content : sor<map, scalar> {};
+
+struct sibling : seq<same_indent, consume_indent, content> {};
+struct child : seq<more_indent, consume_indent, content> {};
+struct sibling_or_child : sor<child, sibling> {};
+struct node_or_pop_indent : sor<sibling_or_child, pop_indent> {};
+struct node : seq<push_indent, node_or_pop_indent, pop_indent> {};
+struct yaml : seq<identifier, one<':'>, success, test> {};
 
 // ===========
 // = Actions =
@@ -95,6 +160,24 @@ template <> struct action<pop_indent> : base<pop_indent> {
   template <typename Input> static void apply(const Input &, Context &context) {
     context.indentation.pop_back();
     LOGF("Context: {}", context.toString());
+  }
+};
+
+template <> struct action<success> : base<success> {
+  template <typename Input> static void apply(const Input &input, Context &) {
+    LOGF("First: “{}”", *input.begin());
+  }
+};
+
+template <> struct action<child> : base<child> {
+  template <typename Input> static void apply(const Input &, Context &) {
+    LOG("🧒🏾");
+  }
+};
+
+template <> struct action<sibling> : base<sibling> {
+  template <typename Input> static void apply(const Input &input, Context &) {
+    LOGF("👫 “{}”", input.string());
   }
 };
 
