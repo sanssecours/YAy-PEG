@@ -72,27 +72,12 @@ struct push_indent {
             template <typename...> class, typename Input>
   static bool match(Input &input, Context &context) {
     size_t indent = 0;
-    LOGF("Start: {}", *input.begin());
-    for (auto current = input.begin();
-         input.size(indent + 1) >= indent + 1 && *current == ' '; ++current) {
-      LOGF("Current: {}", *current);
+    while (input.peek_char(indent) == ' ') {
+      LOGF("Current: “{}”", input.peek_char(indent));
       ++indent;
     }
     context.indentation.push_back(indent);
     LOGF("Context: {}", context.toString());
-    return true;
-  }
-};
-
-struct test {
-  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
-      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
-
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
-            template <typename...> class, typename Input>
-  static bool match(Input &input, Context &) {
-    LOGF("First: “{}”", input.peek_byte());
     return true;
   }
 };
@@ -142,7 +127,7 @@ struct child : seq<more_indent, consume_indent, content> {};
 struct sibling_or_child : sor<child, sibling> {};
 struct node_or_pop_indent : sor<sibling_or_child, pop_indent> {};
 struct node : seq<push_indent, node_or_pop_indent, pop_indent> {};
-struct yaml : seq<identifier, one<':'>, success, test> {};
+struct yaml : seq<identifier, one<':'>, eolf, push_indent> {};
 
 // ===========
 // = Actions =
