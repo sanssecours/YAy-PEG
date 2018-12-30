@@ -149,14 +149,14 @@ template <> struct action<pop_indent> : base<pop_indent> {
 };
 
 template <> struct action<child> : base<child> {
-  template <typename Input> static void apply(const Input &, Context &) {
-    LOG("🧒🏾");
+  template <typename Input> static void apply(const Input &input, Context &) {
+    LOGF("🧒🏾: “{}”", input.string());
   }
 };
 
 template <> struct action<sibling> : base<sibling> {
   template <typename Input> static void apply(const Input &input, Context &) {
-    LOGF("👫 “{}”", input.string());
+    LOGF("👫: “{}”", input.string());
   }
 };
 
