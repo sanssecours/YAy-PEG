@@ -122,12 +122,13 @@ struct scalar : identifier {};
 struct map : seq<scalar, one<':'>, eolf, node> {};
 struct content : sor<map, scalar> {};
 
-struct sibling : seq<same_indent, consume_indent, content> {};
-struct child : seq<more_indent, consume_indent, content> {};
-struct sibling_or_child : sor<child, sibling> {};
+struct sibling : seq<content> {};
+struct child : seq<content> {};
+struct sibling_or_child : sor<seq<more_indent, consume_indent, child>,
+                              seq<same_indent, consume_indent, sibling>> {};
 struct node_or_pop_indent : sor<sibling_or_child, pop_indent> {};
 struct node : seq<push_indent, node_or_pop_indent, pop_indent> {};
-struct yaml : seq<identifier, one<':'>, eolf, push_indent> {};
+struct yaml : seq<node> {};
 
 // ===========
 // = Actions =
