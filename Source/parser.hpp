@@ -148,12 +148,6 @@ template <> struct action<pop_indent> : base<pop_indent> {
   }
 };
 
-template <> struct action<success> : base<success> {
-  template <typename Input> static void apply(const Input &input, Context &) {
-    LOGF("First: “{}”", *input.begin());
-  }
-};
-
 template <> struct action<child> : base<child> {
   template <typename Input> static void apply(const Input &, Context &) {
     LOG("🧒🏾");
