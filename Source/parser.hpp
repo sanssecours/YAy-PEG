@@ -120,8 +120,9 @@ struct pop_indent : success {};
 struct scalar : identifier {};
 struct key : scalar {};
 struct key_value_indicator : seq<key, one<':'>> {};
+struct value : scalar {};
 struct map : seq<key_value_indicator, eolf, node> {};
-struct content : sor<map, scalar> {};
+struct content : sor<map, value> {};
 
 struct sibling : seq<content> {};
 struct child : seq<content> {};
@@ -160,7 +161,20 @@ template <> struct action<key> : base<key> {
 
 template <> struct action<key_value_indicator> : base<key_value_indicator> {
   template <typename Input> static void apply(const Input &, Context &context) {
+    kdb::Key child{context.parents.top().getName(), KEY_END};
+    child.addBaseName(context.key);
+    context.parents.push(child);
+
     LOGF("🔑: “{}”", context.key);
+  }
+};
+
+template <> struct action<value> : base<value> {
+  template <typename Input>
+  static void apply(const Input &input, Context &context) {
+    kdb::Key key = context.parents.top();
+    key.setString(input.string());
+    context.keys.append(key);
   }
 };
 
