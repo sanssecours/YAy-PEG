@@ -20,7 +20,7 @@
 namespace yaypeg {
 
 struct Context {
-  std::deque<size_t> indentation{0};
+  std::deque<size_t> indentation;
   std::string toString() const noexcept;
 };
 

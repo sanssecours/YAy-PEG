@@ -112,7 +112,7 @@ struct consume_indent {
 };
 struct node;
 
-struct more_indent : indent<std::greater<size_t>> {};
+struct more_indent : indent<std::greater<size_t>, true> {};
 struct same_indent : indent<std::equal_to<size_t>> {};
 
 struct pop_indent : success {};
