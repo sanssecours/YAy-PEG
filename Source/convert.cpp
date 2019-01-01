@@ -63,7 +63,7 @@ int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
     return -1;
   }
 
-  KeySet keys{};
+  auto &keys = context.keys;
 
   int status = (keys.size() <= 0) ? 0 : 1;
 

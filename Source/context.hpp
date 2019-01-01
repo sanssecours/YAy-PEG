@@ -24,8 +24,10 @@ namespace yaypeg {
 
 struct Context {
   std::deque<size_t> indentation;
+
   std::string key;
   std::stack<kdb::Key> parents;
+  kdb::KeySet keys;
 
   Context(kdb::Key const &parent);
   std::string toString() const noexcept;
