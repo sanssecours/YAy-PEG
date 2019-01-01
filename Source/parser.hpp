@@ -118,7 +118,8 @@ struct same_indent : indent<std::equal_to<size_t>> {};
 struct pop_indent : success {};
 
 struct scalar : identifier {};
-struct map : seq<scalar, one<':'>, eolf, node> {};
+struct key : scalar {};
+struct map : seq<key, one<':'>, eolf, node> {};
 struct content : sor<map, scalar> {};
 
 struct sibling : seq<content> {};
@@ -145,6 +146,12 @@ template <> struct action<pop_indent> : base<pop_indent> {
   template <typename Input> static void apply(const Input &, Context &context) {
     context.indentation.pop_back();
     LOGF("Context: {}", context.toString());
+  }
+};
+
+template <> struct action<key> : base<key> {
+  template <typename Input> static void apply(const Input &input, Context &) {
+    LOGF("🔑: “{}”", input.string());
   }
 };
 
