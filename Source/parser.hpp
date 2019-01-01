@@ -119,7 +119,8 @@ struct pop_indent : success {};
 
 struct scalar : identifier {};
 struct key : scalar {};
-struct map : seq<key, one<':'>, eolf, node> {};
+struct key_value_indicator : seq<key, one<':'>> {};
+struct map : seq<key_value_indicator, eolf, node> {};
 struct content : sor<map, scalar> {};
 
 struct sibling : seq<content> {};
@@ -150,8 +151,16 @@ template <> struct action<pop_indent> : base<pop_indent> {
 };
 
 template <> struct action<key> : base<key> {
-  template <typename Input> static void apply(const Input &input, Context &) {
-    LOGF("🔑: “{}”", input.string());
+  template <typename Input>
+  static void apply(const Input &input, Context &context) {
+    context.key = input.string();
+    LOGF("Possible Key: “{}”", context.key);
+  }
+};
+
+template <> struct action<key_value_indicator> : base<key_value_indicator> {
+  template <typename Input> static void apply(const Input &, Context &context) {
+    LOGF("🔑: “{}”", context.key);
   }
 };
 

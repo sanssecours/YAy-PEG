@@ -21,6 +21,8 @@ namespace yaypeg {
 
 struct Context {
   std::deque<size_t> indentation;
+  std::string key;
+
   std::string toString() const noexcept;
 };
 
