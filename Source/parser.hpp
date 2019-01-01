@@ -73,7 +73,6 @@ struct push_indent {
   static bool match(Input &input, Context &context) {
     size_t indent = 0;
     while (input.peek_char(indent) == ' ') {
-      LOGF("Current: “{}”", input.peek_char(indent));
       ++indent;
     }
     context.indentation.push_back(indent);
