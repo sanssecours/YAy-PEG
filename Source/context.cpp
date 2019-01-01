@@ -17,11 +17,15 @@
 
 namespace yaypeg {
 
+using kdb::Key;
+
 using std::accumulate;
 using std::move;
 using std::next;
 using std::string;
 using std::to_string;
+
+Context::Context(Key const &parent) { parents.push(parent.dup()); }
 
 string Context::toString() const noexcept {
   string result =

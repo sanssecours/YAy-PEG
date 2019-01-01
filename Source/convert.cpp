@@ -40,7 +40,7 @@ using std::string;
  *            given keyset
  * @retval  1 if parsing was successful and the function did change `keySet`
  */
-int addToKeySet(KeySet &keySet, Key &, string const &filename) {
+int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
   using std::cerr;
   using std::endl;
   using tao::TAO_PEGTL_NAMESPACE::analyze;
@@ -49,7 +49,7 @@ int addToKeySet(KeySet &keySet, Key &, string const &filename) {
   using tao::TAO_PEGTL_NAMESPACE::parse_error;
   using tao::TAO_PEGTL_NAMESPACE::tracer;
 
-  Context context{};
+  Context context{parent};
 
   // Check grammar for problematic code
   analyze<yaml>();

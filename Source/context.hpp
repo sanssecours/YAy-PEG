@@ -13,7 +13,10 @@
 // -- Imports ------------------------------------------------------------------
 
 #include <deque>
+#include <stack>
 #include <string>
+
+#include <kdb.hpp>
 
 // -- Class --------------------------------------------------------------------
 
@@ -22,7 +25,9 @@ namespace yaypeg {
 struct Context {
   std::deque<size_t> indentation;
   std::string key;
+  std::stack<kdb::Key> parents;
 
+  Context(kdb::Key const &parent);
   std::string toString() const noexcept;
 };
 
