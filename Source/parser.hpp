@@ -55,8 +55,10 @@ namespace yaypeg {
 using tao::TAO_PEGTL_NAMESPACE::eolf;
 using tao::TAO_PEGTL_NAMESPACE::identifier;
 using tao::TAO_PEGTL_NAMESPACE::one;
+using tao::TAO_PEGTL_NAMESPACE::plus;
 using tao::TAO_PEGTL_NAMESPACE::seq;
 using tao::TAO_PEGTL_NAMESPACE::sor;
+using tao::TAO_PEGTL_NAMESPACE::space;
 using tao::TAO_PEGTL_NAMESPACE::success;
 
 // ===========
@@ -106,30 +108,40 @@ struct consume_indent {
             tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
             template <typename...> class, typename Input>
   static bool match(Input &input, Context &context) {
+    size_t indent = context.indentation.back();
+    size_t spaces = 0;
+    while (input.peek_char(spaces) == ' ') {
+      spaces++;
+    }
+    if (indent != spaces) {
+      LOGF("Incorrect indentation: Expected {} spaces, but found {} spaces",
+           indent, spaces);
+    }
     input.bump(context.indentation.back());
-    LOGF("Consumed {} characters", context.indentation.back());
+    LOGF("Consumed {} spaces", context.indentation.back());
     return true;
   }
 };
-struct child;
-
-struct more_indent : indent<std::greater<size_t>, true> {};
-struct same_indent : indent<std::equal_to<size_t>> {};
 
 struct pop_indent : success {};
-
-struct scalar : identifier {};
-struct key : scalar {};
-struct key_value_indicator : seq<key, one<':'>> {};
-struct value : scalar {};
-struct map : seq<key_value_indicator, eolf, child> {};
 
 template <typename... Rules>
 struct with_updated_indent
     : seq<push_indent, sor<seq<Rules...>, pop_indent>, pop_indent> {};
 
-struct child
-    : with_updated_indent<more_indent, consume_indent, sor<map, value>> {};
+struct child;
+
+struct more_indent : indent<std::greater<size_t>, true> {};
+struct same_indent : indent<std::equal_to<size_t>> {};
+
+struct scalar : identifier {};
+struct key : scalar {};
+struct key_value_indicator : seq<key, one<':'>> {};
+struct value : scalar {};
+struct pair : seq<key_value_indicator, space, value, eolf> {};
+struct map : with_updated_indent<plus<pair>> {};
+
+struct child : sor<map, value> {};
 struct yaml : child {};
 
 // ===========
@@ -146,6 +158,9 @@ template <typename Rule> struct action : base<Rule> {};
 
 template <> struct action<pop_indent> : base<pop_indent> {
   template <typename Input> static void apply(const Input &, Context &context) {
+    if (context.indentation.empty()) {
+      return;
+    }
     context.indentation.pop_back();
     LOGF("Context: {}", context.toString());
   }
@@ -175,6 +190,12 @@ template <> struct action<value> : base<value> {
     kdb::Key key = context.parents.top();
     key.setString(input.string());
     context.keys.append(key);
+  }
+};
+
+template <> struct action<pair> : base<pair> {
+  template <typename Input> static void apply(const Input &, Context &context) {
+    context.parents.pop();
   }
 };
 
