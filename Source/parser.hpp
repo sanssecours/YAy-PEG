@@ -111,7 +111,7 @@ struct consume_indent {
     return true;
   }
 };
-struct node;
+struct child;
 
 struct more_indent : indent<std::greater<size_t>, true> {};
 struct same_indent : indent<std::equal_to<size_t>> {};
@@ -122,16 +122,16 @@ struct scalar : identifier {};
 struct key : scalar {};
 struct key_value_indicator : seq<key, one<':'>> {};
 struct value : scalar {};
-struct map : seq<key_value_indicator, eolf, node> {};
+struct map : seq<key_value_indicator, eolf, child> {};
 struct content : sor<map, value> {};
 
-struct sibling : seq<content> {};
-struct child : seq<content> {};
-struct sibling_or_child : sor<seq<more_indent, consume_indent, child>,
-                              seq<same_indent, consume_indent, sibling>> {};
-struct node_or_pop_indent : sor<sibling_or_child, pop_indent> {};
-struct node : seq<push_indent, node_or_pop_indent, pop_indent> {};
-struct yaml : seq<node> {};
+template <typename... Rules>
+struct with_updated_indent
+    : seq<push_indent, sor<seq<Rules...>, pop_indent>, pop_indent> {};
+
+struct child
+    : with_updated_indent<more_indent, consume_indent, sor<map, value>> {};
+struct yaml : child {};
 
 // ===========
 // = Actions =
