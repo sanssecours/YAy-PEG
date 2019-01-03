@@ -123,7 +123,6 @@ struct key : scalar {};
 struct key_value_indicator : seq<key, one<':'>> {};
 struct value : scalar {};
 struct map : seq<key_value_indicator, eolf, child> {};
-struct content : sor<map, value> {};
 
 template <typename... Rules>
 struct with_updated_indent
@@ -182,12 +181,6 @@ template <> struct action<value> : base<value> {
 template <> struct action<child> : base<child> {
   template <typename Input> static void apply(const Input &input, Context &) {
     LOGF("🧒🏾: “{}”", input.string());
-  }
-};
-
-template <> struct action<sibling> : base<sibling> {
-  template <typename Input> static void apply(const Input &input, Context &) {
-    LOGF("👫: “{}”", input.string());
   }
 };
 
