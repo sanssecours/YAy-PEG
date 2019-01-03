@@ -107,6 +107,7 @@ struct consume_indent {
             template <typename...> class, typename Input>
   static bool match(Input &input, Context &context) {
     input.bump(context.indentation.back());
+    LOGF("Consumed {} characters", context.indentation.back());
     return true;
   }
 };
