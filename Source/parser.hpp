@@ -144,8 +144,10 @@ struct pair
     : seq<key_value_indicator, sor<seq<space, value, eolf>, seq<eolf, child>>> {
 };
 struct map : with_updated_indent<more_indent, plus<consume_indent, pair>> {};
+struct indented_scalar
+    : with_updated_indent<more_indent, consume_indent, value> {};
 
-struct child : sor<map, value> {};
+struct child : sor<map, indented_scalar> {};
 struct yaml : child {};
 
 // ===========
