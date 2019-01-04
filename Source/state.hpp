@@ -35,6 +35,8 @@ struct State {
   Context context{Context::BLOCK_IN};
   std::deque<size_t> indentation;
 
+  char last = -1;
+
   std::string key;
   std::stack<kdb::Key> parents;
   kdb::KeySet keys;

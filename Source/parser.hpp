@@ -188,6 +188,28 @@ struct push_indent {
   }
 };
 
+// [130]
+struct last_was_ns_plain_safe {
+  template <tao::yaypeg::apply_mode ApplyMode,
+            tao::yaypeg::rewind_mode RewindMode,
+            template <typename...> class Action,
+            template <typename...> class Control, typename Input>
+  static bool match(Input &, State &state) {
+    std::string const lastString{state.last};
+    return lastString.find("{}[],") == std::string::npos;
+  }
+};
+struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
+                           seq<last_was_ns_plain_safe, one<'#'>>,
+                           seq<one<':'>, at<ns_plain_safe>>> {};
+
+// [132]
+struct nb_ns_plain_in_line : star<seq<star<s_white>>, ns_plain_char> {};
+// [133]
+struct ns_plain_one_line : seq<ns_plain_first, nb_ns_plain_in_line> {};
+
+struct plain_scalar : plus<ns_char> {};
+
 template <typename Comparator, bool DefaultValue = false> struct indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
@@ -235,8 +257,13 @@ struct yaml : child {};
 // ===========
 
 template <typename Rule> struct base {
-  template <typename Input> static void apply(const Input &, State &) {
-    LOG("Apply default action");
+  template <typename Input>
+  static void apply(const Input &input, State &state) {
+    if (input.string().size() <= 0) {
+      return;
+    }
+    state.last = input.string().back();
+    LOGF("Changed last character to “{}”", state.last);
   }
 };
 
