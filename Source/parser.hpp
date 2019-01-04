@@ -52,6 +52,7 @@ extern shared_ptr<spdlog::logger> console;
 
 namespace yaypeg {
 
+using tao::TAO_PEGTL_NAMESPACE::blank;
 using tao::TAO_PEGTL_NAMESPACE::eolf;
 using tao::TAO_PEGTL_NAMESPACE::failure;
 using tao::TAO_PEGTL_NAMESPACE::identifier;
@@ -60,6 +61,7 @@ using tao::TAO_PEGTL_NAMESPACE::plus;
 using tao::TAO_PEGTL_NAMESPACE::seq;
 using tao::TAO_PEGTL_NAMESPACE::sor;
 using tao::TAO_PEGTL_NAMESPACE::space;
+using tao::TAO_PEGTL_NAMESPACE::star;
 using tao::TAO_PEGTL_NAMESPACE::success;
 
 // ===========
@@ -138,7 +140,7 @@ struct same_indent : indent<std::equal_to<size_t>> {};
 
 struct scalar : identifier {};
 struct key : scalar {};
-struct key_value_indicator : seq<key, one<':'>> {};
+struct key_value_indicator : seq<key, star<blank>, one<':'>> {};
 struct value : scalar {};
 struct pair
     : seq<key_value_indicator, sor<seq<space, value, eolf>, seq<eolf, child>>> {
