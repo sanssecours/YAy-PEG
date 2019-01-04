@@ -52,20 +52,69 @@ extern shared_ptr<spdlog::logger> console;
 
 namespace yaypeg {
 
+using tao::TAO_PEGTL_NAMESPACE::at;
 using tao::TAO_PEGTL_NAMESPACE::blank;
+using tao::TAO_PEGTL_NAMESPACE::bol;
+using tao::TAO_PEGTL_NAMESPACE::eof;
 using tao::TAO_PEGTL_NAMESPACE::eolf;
 using tao::TAO_PEGTL_NAMESPACE::failure;
 using tao::TAO_PEGTL_NAMESPACE::identifier;
-using tao::TAO_PEGTL_NAMESPACE::one;
+using tao::TAO_PEGTL_NAMESPACE::must;
+using tao::TAO_PEGTL_NAMESPACE::not_at;
+using tao::TAO_PEGTL_NAMESPACE::nothing;
+using tao::TAO_PEGTL_NAMESPACE::opt;
 using tao::TAO_PEGTL_NAMESPACE::plus;
+using tao::TAO_PEGTL_NAMESPACE::rep;
 using tao::TAO_PEGTL_NAMESPACE::seq;
 using tao::TAO_PEGTL_NAMESPACE::sor;
 using tao::TAO_PEGTL_NAMESPACE::star;
 using tao::TAO_PEGTL_NAMESPACE::success;
+using tao::TAO_PEGTL_NAMESPACE::until;
+using tao::TAO_PEGTL_NAMESPACE::utf8::one;
+using tao::TAO_PEGTL_NAMESPACE::utf8::ranges;
 
 // ===========
 // = Grammar =
 // ===========
+
+// [1]
+struct c_printable
+    : sor<one<'\t', '\n', '\r', 0x85>,
+          ranges<' ', 0x7E, 0xA0, 0xD7FF, 0xE000, 0xFFFD, 0x10000, 0x10FFFF>> {
+};
+// [3]
+struct c_byte_order_mark : one<0xFEFF> {};
+
+// [22]
+struct c_indicator : one<'-', '?', ':', ',', '[', ']', '{', '}', '#', '&', '*',
+                         '!', ',', '>', '\'', '"', '%', '@', '`'> {};
+// [23]
+struct c_flow_indicator : one<',', '[', ']', '{', '}'> {};
+
+// [24]
+struct b_line_feed : one<'\n'> {};
+// [25]
+struct b_carriage_return : one<'\r'> {};
+// [26]
+struct b_char : sor<b_line_feed, b_carriage_return> {};
+// [27]
+struct nb_char : seq<not_at<sor<b_char, c_byte_order_mark>>, c_printable> {};
+// [28]
+struct b_break
+    : sor<seq<b_carriage_return, b_line_feed>, b_carriage_return, b_line_feed> {
+};
+
+// [30]
+struct b_non_content : b_break {};
+
+// [31]
+struct s_space : one<' '> {};
+// [32]
+struct s_tab : one<'\t'> {};
+// [33]
+struct s_white : sor<s_space, s_tab> {};
+// [34]
+struct ns_char : seq<not_at<s_white>, nb_char> {};
 
 struct push_indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
