@@ -60,7 +60,6 @@ using tao::TAO_PEGTL_NAMESPACE::one;
 using tao::TAO_PEGTL_NAMESPACE::plus;
 using tao::TAO_PEGTL_NAMESPACE::seq;
 using tao::TAO_PEGTL_NAMESPACE::sor;
-using tao::TAO_PEGTL_NAMESPACE::space;
 using tao::TAO_PEGTL_NAMESPACE::star;
 using tao::TAO_PEGTL_NAMESPACE::success;
 
@@ -143,7 +142,7 @@ struct key : scalar {};
 struct key_value_indicator : seq<key, star<blank>, one<':'>> {};
 struct value : scalar {};
 struct pair
-    : seq<key_value_indicator, sor<seq<space, value, eolf>, seq<eolf, child>>> {
+    : seq<key_value_indicator, sor<seq<blank, value, eolf>, seq<eolf, child>>> {
 };
 struct map : with_updated_indent<more_indent, plus<consume_indent, pair>> {};
 struct indented_scalar
