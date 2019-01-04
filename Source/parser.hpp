@@ -195,8 +195,7 @@ struct last_was_ns_plain_safe {
             template <typename...> class Action,
             template <typename...> class Control, typename Input>
   static bool match(Input &, State &state) {
-    std::string const lastString{state.last};
-    return lastString.find("{}[],") == std::string::npos;
+    return state.lastWasNsChar;
   }
 };
 struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
@@ -257,17 +256,19 @@ struct yaml : child {};
 // ===========
 
 template <typename Rule> struct base {
-  template <typename Input>
-  static void apply(const Input &input, State &state) {
-    if (input.string().size() <= 0) {
-      return;
-    }
-    state.last = input.string().back();
-    LOGF("Changed last character to “{}”", state.last);
+  template <typename Input> static void apply(const Input &, State &state) {
+    state.lastWasNsChar = false;
   }
 };
 
 template <typename Rule> struct action : base<Rule> {};
+
+template <> struct action<ns_char> {
+  template <typename Input> static void apply(const Input &, State &state) {
+    LOG("Current input matched rule `ns_char`");
+    state.lastWasNsChar = true;
+  }
+};
 
 template <> struct action<pop_indent> : base<pop_indent> {
   template <typename Input> static void apply(const Input &, State &state) {
