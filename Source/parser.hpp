@@ -53,6 +53,7 @@ extern shared_ptr<spdlog::logger> console;
 namespace yaypeg {
 
 using tao::TAO_PEGTL_NAMESPACE::eolf;
+using tao::TAO_PEGTL_NAMESPACE::failure;
 using tao::TAO_PEGTL_NAMESPACE::identifier;
 using tao::TAO_PEGTL_NAMESPACE::one;
 using tao::TAO_PEGTL_NAMESPACE::plus;
@@ -127,7 +128,8 @@ struct pop_indent : success {};
 
 template <typename... Rules>
 struct with_updated_indent
-    : seq<push_indent, sor<seq<Rules...>, pop_indent>, pop_indent> {};
+    : seq<push_indent, sor<seq<Rules...>, seq<pop_indent, failure>>,
+          pop_indent> {};
 
 struct child;
 
