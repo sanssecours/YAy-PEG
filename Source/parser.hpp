@@ -206,7 +206,8 @@ template <> struct action<pair> : base<pair> {
 };
 
 template <> struct action<child> : base<child> {
-  template <typename Input> static void apply(const Input &input, Context &) {
+  template <typename Input>
+  static void apply(const Input &input __attribute__((unused)), Context &) {
     LOGF("🧒🏾: “{}”", input.string());
   }
 };
