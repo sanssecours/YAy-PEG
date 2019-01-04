@@ -24,8 +24,9 @@ using kdb::KeySet;
 using yaypeg::addToKeySet;
 
 #if defined(__clang__)
-#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 using spdlog::logger;
 using spdlog::set_level;
