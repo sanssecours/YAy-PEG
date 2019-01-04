@@ -116,6 +116,30 @@ struct s_white : sor<s_space, s_tab> {};
 // [34]
 struct ns_char : seq<not_at<s_white>, nb_char> {};
 
+// [63]
+struct s_indent {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
+            template <typename...> class, typename Input>
+  static bool match(Input &input, Context &context) {
+    size_t indent = context.indentation.back();
+    size_t spaces = 0;
+    while (input.peek_char(spaces) == ' ') {
+      spaces++;
+    }
+    if (indent != spaces) {
+      LOGF("Expected {} spaces, but found {} spaces", indent, spaces);
+      return false;
+    }
+    input.bump(context.indentation.back());
+    LOGF("Consumed {} spaces", context.indentation.back());
+    return true;
+  }
+};
+
 struct push_indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
@@ -151,29 +175,6 @@ template <typename Comparator, bool DefaultValue = false> struct indent {
   }
 };
 
-struct consume_indent {
-  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
-      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
-
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
-            template <typename...> class, typename Input>
-  static bool match(Input &input, Context &context) {
-    size_t indent = context.indentation.back();
-    size_t spaces = 0;
-    while (input.peek_char(spaces) == ' ') {
-      spaces++;
-    }
-    if (indent != spaces) {
-      LOGF("Expected {} spaces, but found {} spaces", indent, spaces);
-      return false;
-    }
-    input.bump(context.indentation.back());
-    LOGF("Consumed {} spaces", context.indentation.back());
-    return true;
-  }
-};
-
 struct pop_indent : success {};
 
 template <typename... Rules>
@@ -193,9 +194,8 @@ struct value : scalar {};
 struct pair
     : seq<key_value_indicator, sor<seq<blank, value, eolf>, seq<eolf, child>>> {
 };
-struct map : with_updated_indent<more_indent, plus<consume_indent, pair>> {};
-struct indented_scalar
-    : with_updated_indent<more_indent, consume_indent, value> {};
+struct map : with_updated_indent<more_indent, plus<s_indent, pair>> {};
+struct indented_scalar : with_updated_indent<more_indent, s_indent, value> {};
 
 struct child : sor<map, indented_scalar> {};
 struct yaml : child {};
