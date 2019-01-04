@@ -23,6 +23,16 @@
 namespace yaypeg {
 
 struct State {
+  enum class Context {
+    BLOCK_IN,
+    BLOCK_OUT,
+    BLOCK_KEY,
+    FLOW_KEY,
+    FLOW_IN,
+    FLOW_OUT
+  };
+
+  Context context{Context::BLOCK_IN};
   std::deque<size_t> indentation;
 
   std::string key;

@@ -140,6 +140,36 @@ struct s_indent {
   }
 };
 
+// [66]
+struct s_separate_in_line : sor<plus<s_white>, bol> {};
+
+// [126]
+struct ns_plain_safe;
+struct ns_plain_first : sor<seq<not_at<c_indicator>, ns_char>,
+                            one<'?', ':', '-'>, ns_plain_safe> {};
+
+// [128]
+struct ns_plain_safe_out : ns_char {};
+// [129]
+struct ns_plain_safe_in : seq<not_at<c_flow_indicator>, ns_char> {};
+
+// [127]
+struct ns_plain_safe {
+  template <tao::yaypeg::apply_mode ApplyMode,
+            tao::yaypeg::rewind_mode RewindMode,
+            template <typename...> class Action,
+            template <typename...> class Control, typename Input>
+  static bool match(Input &input, State &state) {
+    if (state.context == State::Context::FLOW_OUT ||
+        state.context == State::Context::BLOCK_KEY) {
+      return ns_plain_safe_out::match<ApplyMode, RewindMode, Action, Control>(
+          input, state);
+    }
+    return ns_plain_safe_in::match<ApplyMode, RewindMode, Action, Control>(
+        input, state);
+  }
+};
+
 struct push_indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
