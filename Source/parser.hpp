@@ -114,8 +114,8 @@ struct consume_indent {
       spaces++;
     }
     if (indent != spaces) {
-      LOGF("Incorrect indentation: Expected {} spaces, but found {} spaces",
-           indent, spaces);
+      LOGF("Expected {} spaces, but found {} spaces", indent, spaces);
+      return false;
     }
     input.bump(context.indentation.back());
     LOGF("Consumed {} spaces", context.indentation.back());
@@ -138,8 +138,10 @@ struct scalar : identifier {};
 struct key : scalar {};
 struct key_value_indicator : seq<key, one<':'>> {};
 struct value : scalar {};
-struct pair : seq<key_value_indicator, space, value, eolf> {};
-struct map : with_updated_indent<plus<pair>> {};
+struct pair
+    : seq<key_value_indicator, sor<seq<space, value, eolf>, seq<eolf, child>>> {
+};
+struct map : with_updated_indent<more_indent, plus<consume_indent, pair>> {};
 
 struct child : sor<map, value> {};
 struct yaml : child {};
