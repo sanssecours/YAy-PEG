@@ -55,8 +55,8 @@ set(SOURCE_FILES
     ${SOURCE_DIRECTORY}/convert.hpp
     ${SOURCE_DIRECTORY}/convert.cpp
     ${SOURCE_DIRECTORY}/parser.hpp
-    ${SOURCE_DIRECTORY}/context.hpp
-    ${SOURCE_DIRECTORY}/context.cpp
+    ${SOURCE_DIRECTORY}/state.hpp
+    ${SOURCE_DIRECTORY}/state.cpp
     ${SOURCE_DIRECTORY}/yaypeg.cpp)
 
 include_directories("${PEGTL_INCLUDE_DIRS}" "${spdlog_INCLUDE_DIR}")

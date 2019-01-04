@@ -9,7 +9,7 @@
 
 // -- Imports ------------------------------------------------------------------
 
-#include "context.hpp"
+#include "state.hpp"
 
 #include <numeric>
 
@@ -25,9 +25,9 @@ using std::next;
 using std::string;
 using std::to_string;
 
-Context::Context(Key const &parent) { parents.push(parent.dup()); }
+State::State(Key const &parent) { parents.push(parent.dup()); }
 
-string Context::toString() const noexcept {
+string State::toString() const noexcept {
   string result =
       indentation.size() <= 0
           ? ""

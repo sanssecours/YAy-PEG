@@ -9,8 +9,8 @@
 // -- Imports ------------------------------------------------------------------
 
 #include "convert.hpp"
-#include "context.hpp"
 #include "parser.hpp"
+#include "state.hpp"
 
 #define TAO_PEGTL_NAMESPACE yaypeg
 
@@ -49,7 +49,7 @@ int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
   using tao::TAO_PEGTL_NAMESPACE::parse_error;
   using tao::TAO_PEGTL_NAMESPACE::tracer;
 
-  Context context{parent};
+  State state{parent};
 
   // Check grammar for problematic code
   analyze<yaml>();
@@ -57,13 +57,13 @@ int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
   file_input<> input{filename};
 
   try {
-    parse<yaml, action, tracer>(input, context);
+    parse<yaml, action, tracer>(input, state);
   } catch (parse_error const &error) {
     cerr << error.what() << endl;
     return -1;
   }
 
-  auto &keys = context.keys;
+  auto &keys = state.keys;
 
   int status = (keys.size() <= 0) ? 0 : 1;
 

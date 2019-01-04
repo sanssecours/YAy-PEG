@@ -38,7 +38,7 @@
 
 #include <kdb.hpp>
 
-#include "context.hpp"
+#include "state.hpp"
 
 #if defined(__clang__)
 #include <spdlog/spdlog.h>
@@ -124,8 +124,8 @@ struct s_indent {
   template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
             tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
             template <typename...> class, typename Input>
-  static bool match(Input &input, Context &context) {
-    size_t indent = context.indentation.back();
+  static bool match(Input &input, State &state) {
+    size_t indent = state.indentation.back();
     size_t spaces = 0;
     while (input.peek_char(spaces) == ' ') {
       spaces++;
@@ -134,8 +134,8 @@ struct s_indent {
       LOGF("Expected {} spaces, but found {} spaces", indent, spaces);
       return false;
     }
-    input.bump(context.indentation.back());
-    LOGF("Consumed {} spaces", context.indentation.back());
+    input.bump(state.indentation.back());
+    LOGF("Consumed {} spaces", state.indentation.back());
     return true;
   }
 };
@@ -147,13 +147,13 @@ struct push_indent {
   template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
             tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
             template <typename...> class, typename Input>
-  static bool match(Input &input, Context &context) {
+  static bool match(Input &input, State &state) {
     size_t indent = 0;
     while (input.peek_char(indent) == ' ') {
       ++indent;
     }
-    context.indentation.push_back(indent);
-    LOGF("Context: {}", context.toString());
+    state.indentation.push_back(indent);
+    LOGF("State: {}", state.toString());
     return true;
   }
 };
@@ -165,13 +165,13 @@ template <typename Comparator, bool DefaultValue = false> struct indent {
   template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
             tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
             template <typename...> class, typename Input>
-  static bool match(Input &, Context &context) {
-    size_t levels = context.indentation.size();
+  static bool match(Input &, State &state) {
+    size_t levels = state.indentation.size();
     if (levels <= 1) {
       return DefaultValue;
     }
-    return Comparator{}(context.indentation[levels - 1],
-                        context.indentation[levels - 2]);
+    return Comparator{}(state.indentation[levels - 1],
+                        state.indentation[levels - 2]);
   }
 };
 
@@ -205,7 +205,7 @@ struct yaml : child {};
 // ===========
 
 template <typename Rule> struct base {
-  template <typename Input> static void apply(const Input &, Context &) {
+  template <typename Input> static void apply(const Input &, State &) {
     LOG("Apply default action");
   }
 };
@@ -213,51 +213,51 @@ template <typename Rule> struct base {
 template <typename Rule> struct action : base<Rule> {};
 
 template <> struct action<pop_indent> : base<pop_indent> {
-  template <typename Input> static void apply(const Input &, Context &context) {
-    if (context.indentation.empty()) {
+  template <typename Input> static void apply(const Input &, State &state) {
+    if (state.indentation.empty()) {
       return;
     }
-    context.indentation.pop_back();
-    LOGF("Context: {}", context.toString());
+    state.indentation.pop_back();
+    LOGF("State: {}", state.toString());
   }
 };
 
 template <> struct action<key> : base<key> {
   template <typename Input>
-  static void apply(const Input &input, Context &context) {
-    context.key = input.string();
-    LOGF("Possible Key: “{}”", context.key);
+  static void apply(const Input &input, State &state) {
+    state.key = input.string();
+    LOGF("Possible Key: “{}”", state.key);
   }
 };
 
 template <> struct action<key_value_indicator> : base<key_value_indicator> {
-  template <typename Input> static void apply(const Input &, Context &context) {
-    kdb::Key child{context.parents.top().getName(), KEY_END};
-    child.addBaseName(context.key);
-    context.parents.push(child);
+  template <typename Input> static void apply(const Input &, State &state) {
+    kdb::Key child{state.parents.top().getName(), KEY_END};
+    child.addBaseName(state.key);
+    state.parents.push(child);
 
-    LOGF("🔑: “{}”", context.key);
+    LOGF("🔑: “{}”", state.key);
   }
 };
 
 template <> struct action<value> : base<value> {
   template <typename Input>
-  static void apply(const Input &input, Context &context) {
-    kdb::Key key = context.parents.top();
+  static void apply(const Input &input, State &state) {
+    kdb::Key key = state.parents.top();
     key.setString(input.string());
-    context.keys.append(key);
+    state.keys.append(key);
   }
 };
 
 template <> struct action<pair> : base<pair> {
-  template <typename Input> static void apply(const Input &, Context &context) {
-    context.parents.pop();
+  template <typename Input> static void apply(const Input &, State &state) {
+    state.parents.pop();
   }
 };
 
 template <> struct action<child> : base<child> {
   template <typename Input>
-  static void apply(const Input &input __attribute__((unused)), Context &) {
+  static void apply(const Input &input __attribute__((unused)), State &) {
     LOGF("🧒🏾: “{}”", input.string());
   }
 };
