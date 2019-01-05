@@ -344,13 +344,6 @@ template <> struct action<pair> : base<pair> {
   }
 };
 
-template <> struct action<child> : base<child> {
-  template <typename Input>
-  static void apply(const Input &input __attribute__((unused)), State &) {
-    LOGF("🧒🏾: “{}”", input.string());
-  }
-};
-
 } // namespace yaypeg
 
 #endif // ELEKTRA_PLUGIN_YAYPEG_GRAMMAR_HPP
