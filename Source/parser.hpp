@@ -111,7 +111,7 @@ struct push_indent {
 
 struct pop_indent : success {};
 
-template <> struct action<pop_indent> : base<pop_indent> {
+template <> struct action<pop_indent> {
   template <typename Input> static void apply(const Input &, State &state) {
     if (state.indentation.empty()) {
       return;
