@@ -32,7 +32,7 @@ struct State {
     FLOW_OUT
   };
 
-  Context context{Context::BLOCK_IN};
+  std::stack<Context> context{{Context::BLOCK_IN}};
   std::deque<size_t> indentation;
 
   char lastWasNsChar = false;
