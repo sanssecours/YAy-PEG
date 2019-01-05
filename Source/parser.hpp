@@ -87,7 +87,6 @@ template <typename Rule> struct action : base<Rule> {};
 struct ns_char;
 template <> struct action<ns_char> {
   template <typename Input> static void apply(const Input &, State &state) {
-    LOG("Current input matched rule `ns_char`");
     state.lastWasNsChar = true;
   }
 };
