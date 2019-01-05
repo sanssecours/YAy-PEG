@@ -234,10 +234,14 @@ template <typename Comparator, bool DefaultValue = false> struct indent {
 
 struct pop_indent : success {};
 
+template <typename UpdateStateRule, typename RevertStateRule, typename... Rules>
+struct with_updated_state
+    : seq<UpdateStateRule, sor<seq<Rules...>, seq<RevertStateRule, failure>>,
+          RevertStateRule> {};
+
 template <typename... Rules>
 struct with_updated_indent
-    : seq<push_indent, sor<seq<Rules...>, seq<pop_indent, failure>>,
-          pop_indent> {};
+    : with_updated_state<push_indent, pop_indent, Rules...> {};
 
 struct child;
 
