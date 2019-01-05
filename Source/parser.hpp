@@ -73,6 +73,88 @@ using tao::TAO_PEGTL_NAMESPACE::until;
 using tao::TAO_PEGTL_NAMESPACE::utf8::one;
 using tao::TAO_PEGTL_NAMESPACE::utf8::ranges;
 
+// ==========================
+// = Parser Context Updates =
+// ==========================
+
+template <typename Rule> struct base {
+  template <typename Input> static void apply(const Input &, State &state) {
+    state.lastWasNsChar = false;
+  }
+};
+template <typename Rule> struct action : base<Rule> {};
+
+struct ns_char;
+template <> struct action<ns_char> {
+  template <typename Input> static void apply(const Input &, State &state) {
+    LOG("Current input matched rule `ns_char`");
+    state.lastWasNsChar = true;
+  }
+};
+
+struct push_indent {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
+            template <typename...> class, typename Input>
+  static bool match(Input &input, State &state) {
+    size_t indent = 0;
+    while (input.peek_char(indent) == ' ') {
+      ++indent;
+    }
+    state.indentation.push_back(indent);
+    LOGF("State: {}", state.toString());
+    return true;
+  }
+};
+
+struct pop_indent : success {};
+
+template <> struct action<pop_indent> : base<pop_indent> {
+  template <typename Input> static void apply(const Input &, State &state) {
+    if (state.indentation.empty()) {
+      return;
+    }
+    state.indentation.pop_back();
+    LOGF("State: {}", state.toString());
+  }
+};
+
+template <typename UpdateStateRule, typename RevertStateRule, typename... Rules>
+struct with_updated_state
+    : seq<UpdateStateRule, sor<seq<Rules...>, seq<RevertStateRule, failure>>,
+          RevertStateRule> {};
+
+template <typename... Rules>
+struct with_updated_indent
+    : with_updated_state<push_indent, pop_indent, Rules...> {};
+
+// =========================
+// = Parser Context Checks =
+// =========================
+
+template <typename Comparator, bool DefaultValue = false> struct indent {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
+            template <typename...> class, typename Input>
+  static bool match(Input &, State &state) {
+    size_t levels = state.indentation.size();
+    if (levels <= 1) {
+      return DefaultValue;
+    }
+    return Comparator{}(state.indentation[levels - 1],
+                        state.indentation[levels - 2]);
+  }
+};
+
+struct more_indent : indent<std::greater<size_t>, true> {};
+struct same_indent : indent<std::equal_to<size_t>> {};
+
 // ===========
 // = Grammar =
 // ===========
@@ -194,59 +276,24 @@ struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
 struct nb_ns_plain_in_line : star<seq<star<s_white>>, ns_plain_char> {};
 // [133]
 struct ns_plain_one_line : seq<ns_plain_first, nb_ns_plain_in_line> {};
-
-struct push_indent {
+// [131]
+struct ns_plain {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
 
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
-            template <typename...> class, typename Input>
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
+            template <typename...> class Action,
+            template <typename...> class Control, typename Input>
   static bool match(Input &input, State &state) {
-    size_t indent = 0;
-    while (input.peek_char(indent) == ' ') {
-      ++indent;
-    }
-    state.indentation.push_back(indent);
-    LOGF("State: {}", state.toString());
-    return true;
+    return ns_plain_one_line::match<ApplyMode, RewindMode, Action, Control>(
+        input, state);
   }
 };
 
 struct plain_scalar : ns_plain_one_line {};
 
-template <typename Comparator, bool DefaultValue = false> struct indent {
-  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
-      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
-
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
-            template <typename...> class, typename Input>
-  static bool match(Input &, State &state) {
-    size_t levels = state.indentation.size();
-    if (levels <= 1) {
-      return DefaultValue;
-    }
-    return Comparator{}(state.indentation[levels - 1],
-                        state.indentation[levels - 2]);
-  }
-};
-
-struct pop_indent : success {};
-
-template <typename UpdateStateRule, typename RevertStateRule, typename... Rules>
-struct with_updated_state
-    : seq<UpdateStateRule, sor<seq<Rules...>, seq<RevertStateRule, failure>>,
-          RevertStateRule> {};
-
-template <typename... Rules>
-struct with_updated_indent
-    : with_updated_state<push_indent, pop_indent, Rules...> {};
-
 struct child;
-
-struct more_indent : indent<std::greater<size_t>, true> {};
-struct same_indent : indent<std::equal_to<size_t>> {};
 
 struct scalar : plain_scalar {};
 struct key : scalar {};
@@ -261,34 +308,9 @@ struct indented_scalar : with_updated_indent<more_indent, s_indent, value> {};
 struct child : sor<map, indented_scalar> {};
 struct yaml : child {};
 
-// ===========
-// = Actions =
-// ===========
-
-template <typename Rule> struct base {
-  template <typename Input> static void apply(const Input &, State &state) {
-    state.lastWasNsChar = false;
-  }
-};
-
-template <typename Rule> struct action : base<Rule> {};
-
-template <> struct action<ns_char> {
-  template <typename Input> static void apply(const Input &, State &state) {
-    LOG("Current input matched rule `ns_char`");
-    state.lastWasNsChar = true;
-  }
-};
-
-template <> struct action<pop_indent> : base<pop_indent> {
-  template <typename Input> static void apply(const Input &, State &state) {
-    if (state.indentation.empty()) {
-      return;
-    }
-    state.indentation.pop_back();
-    LOGF("State: {}", state.toString());
-  }
-};
+// ================
+// = Data Updates =
+// ================
 
 template <> struct action<key> : base<key> {
   template <typename Input>
