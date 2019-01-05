@@ -155,6 +155,9 @@ struct ns_plain_safe_in : seq<not_at<c_flow_indicator>, ns_char> {};
 
 // [127]
 struct ns_plain_safe {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
   template <tao::yaypeg::apply_mode ApplyMode,
             tao::yaypeg::rewind_mode RewindMode,
             template <typename...> class Action,
@@ -172,6 +175,9 @@ struct ns_plain_safe {
 
 // [130]
 struct last_was_ns_plain_safe {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
   template <tao::yaypeg::apply_mode ApplyMode,
             tao::yaypeg::rewind_mode RewindMode,
             template <typename...> class Action,
@@ -207,7 +213,7 @@ struct push_indent {
   }
 };
 
-struct plain_scalar : plus<ns_char> {};
+struct plain_scalar : ns_plain_one_line {};
 
 template <typename Comparator, bool DefaultValue = false> struct indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
@@ -238,7 +244,7 @@ struct child;
 struct more_indent : indent<std::greater<size_t>, true> {};
 struct same_indent : indent<std::equal_to<size_t>> {};
 
-struct scalar : identifier {};
+struct scalar : plain_scalar {};
 struct key : scalar {};
 struct key_value_indicator : seq<key, star<blank>, one<':'>> {};
 struct value : scalar {};
