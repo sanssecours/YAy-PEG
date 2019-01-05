@@ -158,8 +158,8 @@ struct ns_plain_safe {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
 
-  template <tao::yaypeg::apply_mode ApplyMode,
-            tao::yaypeg::rewind_mode RewindMode,
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
             template <typename...> class Action,
             template <typename...> class Control, typename Input>
   static bool match(Input &input, State &state) {
@@ -178,8 +178,8 @@ struct last_was_ns_plain_safe {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
 
-  template <tao::yaypeg::apply_mode ApplyMode,
-            tao::yaypeg::rewind_mode RewindMode,
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
             template <typename...> class Action,
             template <typename...> class Control, typename Input>
   static bool match(Input &, State &state) {
