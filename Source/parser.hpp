@@ -170,24 +170,6 @@ struct ns_plain_safe {
   }
 };
 
-struct push_indent {
-  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
-      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
-
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
-            template <typename...> class, typename Input>
-  static bool match(Input &input, State &state) {
-    size_t indent = 0;
-    while (input.peek_char(indent) == ' ') {
-      ++indent;
-    }
-    state.indentation.push_back(indent);
-    LOGF("State: {}", state.toString());
-    return true;
-  }
-};
-
 // [130]
 struct last_was_ns_plain_safe {
   template <tao::yaypeg::apply_mode ApplyMode,
@@ -206,6 +188,24 @@ struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
 struct nb_ns_plain_in_line : star<seq<star<s_white>>, ns_plain_char> {};
 // [133]
 struct ns_plain_one_line : seq<ns_plain_first, nb_ns_plain_in_line> {};
+
+struct push_indent {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
+            template <typename...> class, typename Input>
+  static bool match(Input &input, State &state) {
+    size_t indent = 0;
+    while (input.peek_char(indent) == ' ') {
+      ++indent;
+    }
+    state.indentation.push_back(indent);
+    LOGF("State: {}", state.toString());
+    return true;
+  }
+};
 
 struct plain_scalar : plus<ns_char> {};
 
