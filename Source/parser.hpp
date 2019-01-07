@@ -206,6 +206,27 @@ struct less_indent : indent<std::less<size_t>> {};
 struct same_indent : indent<std::equal_to<size_t>> {};
 struct more_indent : indent<std::greater<size_t>, true> {};
 
+template <State::Context Context1, State::Context Context2, typename RuleTrue,
+          typename RuleFalse>
+struct if_context_else {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
+            template <typename...> class Action,
+            template <typename...> class Control, typename Input>
+  static bool match(Input &input, State &state) {
+    if (state.context.top() == Context1 || state.context.top() == Context2) {
+      return RuleTrue::template match<ApplyMode, RewindMode, Action, Control>(
+          input, state);
+    }
+    return RuleFalse::template match<ApplyMode, RewindMode, Action, Control>(
+        input, state);
+    ;
+  }
+};
+
 // ===========
 // = Grammar =
 // ===========
@@ -343,24 +364,9 @@ struct s_block_line_prefix : s_indent {};
 // [69]
 struct s_flow_line_prefix : seq<s_indent, opt<s_separate_in_line>> {};
 // [67]
-struct s_line_prefix {
-  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
-      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
-
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
-            template <typename...> class Action,
-            template <typename...> class Control, typename Input>
-  static bool match(Input &input, State &state) {
-    if (state.context.top() == State::Context::BLOCK_OUT ||
-        state.context.top() == State::Context::BLOCK_IN) {
-      return s_block_line_prefix::match<ApplyMode, RewindMode, Action, Control>(
-          input, state);
-    }
-    return s_flow_line_prefix::match<ApplyMode, RewindMode, Action, Control>(
-        input, state);
-  }
-};
+struct s_line_prefix
+    : if_context_else<State::Context::BLOCK_OUT, State::Context::BLOCK_IN,
+                      s_block_line_prefix, s_flow_line_prefix> {};
 
 // [70]
 struct s_indent_smaller : with_updated_indent<less_indent, s_indent> {};
@@ -406,24 +412,9 @@ struct s_double_next_line;
 struct nb_double_multi_line
     : seq<nb_ns_double_in_line, sor<s_double_next_line, star<s_white>>> {};
 // [110]
-struct nb_double_text {
-  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
-      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
-
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
-            template <typename...> class Action,
-            template <typename...> class Control, typename Input>
-  static bool match(Input &input, State &state) {
-    if (state.context.top() == State::Context::FLOW_OUT ||
-        state.context.top() == State::Context::FLOW_IN) {
-      return nb_double_multi_line::match<ApplyMode, RewindMode, Action,
-                                         Control>(input, state);
-    }
-    return nb_double_one_line::match<ApplyMode, RewindMode, Action, Control>(
-        input, state);
-  }
-};
+struct nb_double_text
+    : if_context_else<State::Context::FLOW_OUT, State::Context::FLOW_IN,
+                      nb_double_multi_line, nb_double_one_line> {};
 
 // [112]
 struct s_double_escaped
@@ -450,24 +441,9 @@ struct ns_plain_safe_out : ns_char {};
 struct ns_plain_safe_in : seq<not_at<c_flow_indicator>, ns_char> {};
 
 // [127]
-struct ns_plain_safe {
-  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
-      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
-
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
-            template <typename...> class Action,
-            template <typename...> class Control, typename Input>
-  static bool match(Input &input, State &state) {
-    if (state.context.top() == State::Context::FLOW_OUT ||
-        state.context.top() == State::Context::BLOCK_KEY) {
-      return ns_plain_safe_out::match<ApplyMode, RewindMode, Action, Control>(
-          input, state);
-    }
-    return ns_plain_safe_in::match<ApplyMode, RewindMode, Action, Control>(
-        input, state);
-  }
-};
+struct ns_plain_safe
+    : if_context_else<State::Context::FLOW_OUT, State::Context::BLOCK_KEY,
+                      ns_plain_safe_out, ns_plain_safe_in> {};
 
 // [130]
 struct last_was_ns_plain_safe {
@@ -498,24 +474,9 @@ struct ns_plain_multi_line
     : seq<ns_plain_one_line, star<s_ns_plain_next_line>> {};
 
 // [131]
-struct ns_plain {
-  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
-      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
-
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
-            template <typename...> class Action,
-            template <typename...> class Control, typename Input>
-  static bool match(Input &input, State &state) {
-    if (state.context.top() == State::Context::FLOW_OUT ||
-        state.context.top() == State::Context::FLOW_IN) {
-      return ns_plain_multi_line::match<ApplyMode, RewindMode, Action, Control>(
-          input, state);
-    }
-    return ns_plain_one_line::match<ApplyMode, RewindMode, Action, Control>(
-        input, state);
-  }
-};
+struct ns_plain
+    : if_context_else<State::Context::FLOW_OUT, State::Context::FLOW_IN,
+                      ns_plain_multi_line, ns_plain_one_line> {};
 
 struct plain_scalar : ns_plain {};
 struct double_quoted_scalar : c_double_quoted {};
