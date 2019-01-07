@@ -391,6 +391,9 @@ struct s_indent {
   }
 };
 
+// [64]
+struct s_indent_smaller_n : with_updated_indent<less_indent, s_indent> {};
+
 // ==========================
 // = 6.2. Separation Spaces =
 // ==========================
@@ -418,8 +421,7 @@ struct s_flow_line_prefix : seq<s_indent, opt<s_separate_in_line>> {};
 // ====================
 
 // [70]
-struct s_indent_smaller : with_updated_indent<less_indent, s_indent> {};
-struct l_empty : seq<sor<s_line_prefix, s_indent_smaller>, b_as_line_feed> {};
+struct l_empty : seq<sor<s_line_prefix, s_indent_smaller_n>, b_as_line_feed> {};
 
 // =====================
 // = 6.5. Line Folding =
