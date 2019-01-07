@@ -507,11 +507,13 @@ struct ns_plain_multi_line
     : seq<ns_plain_one_line, star<s_ns_plain_next_line>> {};
 
 struct plain_scalar : ns_plain {};
+struct single_quoted_scalar : c_single_quoted {};
 struct double_quoted_scalar : c_double_quoted {};
 
 struct child;
 
-struct scalar : sor<plain_scalar, double_quoted_scalar> {};
+struct scalar : sor<plain_scalar, single_quoted_scalar, double_quoted_scalar> {
+};
 struct key : scalar {};
 struct key_value_indicator : seq<key, star<blank>, one<':'>> {};
 struct value : scalar {};
