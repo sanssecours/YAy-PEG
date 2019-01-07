@@ -580,6 +580,17 @@ struct s_ns_plain_next_line
 struct ns_plain_multi_line
     : seq<ns_plain_one_line, star<s_ns_plain_next_line>> {};
 
+// ===================
+// = 7.5. Flow Nodes =
+// ===================
+
+// [156]
+struct ns_flow_yaml_content : ns_plain {};
+// [157] (Incomplete)
+struct c_flow_json_content : sor<c_single_quoted, c_double_quoted> {};
+// [158]
+struct ns_flow_content : sor<ns_flow_yaml_content, c_flow_json_content> {};
+
 struct plain_scalar : ns_plain {};
 struct single_quoted_scalar : c_single_quoted {};
 struct double_quoted_scalar : c_double_quoted {};
