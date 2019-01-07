@@ -359,14 +359,16 @@ struct s_indent {
 
 // [66]
 struct s_separate_in_line : sor<plus<s_white>, bol> {};
+// [67]
+struct s_block_line_prefix;
+struct s_flow_line_prefix;
+struct s_line_prefix
+    : if_context_else<State::Context::BLOCK_OUT, State::Context::BLOCK_IN,
+                      s_block_line_prefix, s_flow_line_prefix> {};
 // [68]
 struct s_block_line_prefix : s_indent {};
 // [69]
 struct s_flow_line_prefix : seq<s_indent, opt<s_separate_in_line>> {};
-// [67]
-struct s_line_prefix
-    : if_context_else<State::Context::BLOCK_OUT, State::Context::BLOCK_IN,
-                      s_block_line_prefix, s_flow_line_prefix> {};
 
 // [70]
 struct s_indent_smaller : with_updated_indent<less_indent, s_indent> {};
@@ -403,19 +405,14 @@ struct ns_double_char : minus<nb_double_char, s_white> {};
 // [109]
 struct nb_double_text;
 struct c_double_quoted : seq<one<'"'>, nb_double_text, one<'"'>> {};
-
-// [111]
-struct nb_double_one_line : star<nb_double_char> {};
-// [116]
-struct nb_ns_double_in_line;
-struct s_double_next_line;
-struct nb_double_multi_line
-    : seq<nb_ns_double_in_line, sor<s_double_next_line, star<s_white>>> {};
 // [110]
+struct nb_double_multi_line;
+struct nb_double_one_line;
 struct nb_double_text
     : if_context_else<State::Context::FLOW_OUT, State::Context::FLOW_IN,
                       nb_double_multi_line, nb_double_one_line> {};
-
+// [111]
+struct nb_double_one_line : star<nb_double_char> {};
 // [112]
 struct s_double_escaped
     : seq<star<s_white>, one<'\\'>, b_non_content,
@@ -429,22 +426,25 @@ struct nb_ns_double_in_line : star<star<s_white>, ns_double_char> {};
 struct s_double_next_line
     : seq<s_double_break, opt<ns_double_char, nb_ns_double_in_line,
                               sor<s_double_next_line, star<s_white>>>> {};
+// [116]
+struct nb_double_multi_line
+    : seq<nb_ns_double_in_line, sor<s_double_next_line, star<s_white>>> {};
 
 // [126]
 struct ns_plain_safe;
 struct ns_plain_first : sor<seq<not_at<c_indicator>, ns_char>,
                             one<'?', ':', '-'>, ns_plain_safe> {};
 
+// [127]
+struct ns_plain_safe_out;
+struct ns_plain_safe_in;
+struct ns_plain_safe
+    : if_context_else<State::Context::FLOW_OUT, State::Context::BLOCK_KEY,
+                      ns_plain_safe_out, ns_plain_safe_in> {};
 // [128]
 struct ns_plain_safe_out : ns_char {};
 // [129]
 struct ns_plain_safe_in : seq<not_at<c_flow_indicator>, ns_char> {};
-
-// [127]
-struct ns_plain_safe
-    : if_context_else<State::Context::FLOW_OUT, State::Context::BLOCK_KEY,
-                      ns_plain_safe_out, ns_plain_safe_in> {};
-
 // [130]
 struct last_was_ns_plain_safe {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
@@ -462,6 +462,12 @@ struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
                            seq<last_was_ns_plain_safe, one<'#'>>,
                            seq<one<':'>, at<ns_plain_safe>>> {};
 
+// [131]
+struct ns_plain_multi_line;
+struct ns_plain_one_line;
+struct ns_plain
+    : if_context_else<State::Context::FLOW_OUT, State::Context::FLOW_IN,
+                      ns_plain_multi_line, ns_plain_one_line> {};
 // [132]
 struct nb_ns_plain_in_line : star<seq<star<s_white>>, ns_plain_char> {};
 // [133]
@@ -472,11 +478,6 @@ struct s_ns_plain_next_line
 // [135]
 struct ns_plain_multi_line
     : seq<ns_plain_one_line, star<s_ns_plain_next_line>> {};
-
-// [131]
-struct ns_plain
-    : if_context_else<State::Context::FLOW_OUT, State::Context::FLOW_IN,
-                      ns_plain_multi_line, ns_plain_one_line> {};
 
 struct plain_scalar : ns_plain {};
 struct double_quoted_scalar : c_double_quoted {};
