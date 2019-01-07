@@ -231,6 +231,10 @@ struct if_context_else {
 // = Grammar =
 // ===========
 
+// ======================
+// = 5.1. Character Set =
+// ======================
+
 // [1]
 struct c_printable
     : sor<one<'\t', '\n', '\r', 0x85>,
@@ -239,8 +243,17 @@ struct c_printable
 // [2]
 struct nb_json : sor<one<0x9>, range<0x20, 0x10FFFF>> {};
 
+// ============================
+// = 5.2. Character Encodings =
+// ============================
+
 // [3]
 struct c_byte_order_mark : one<0xFEFF> {};
+
+// =============================
+// = 5.3. Indicator Characters =
+// =============================
+
 // [12]
 struct c_comment : one<'#'> {};
 
@@ -249,6 +262,10 @@ struct c_indicator : one<'-', '?', ':', ',', '[', ']', '{', '}', '#', '&', '*',
                          '!', ',', '>', '\'', '"', '%', '@', '`'> {};
 // [23]
 struct c_flow_indicator : one<',', '[', ']', '{', '}'> {};
+
+// ==============================
+// = 5.4. Line Break Characters =
+// ==============================
 
 // [24]
 struct b_line_feed : one<'\n'> {};
@@ -268,6 +285,10 @@ struct b_as_line_feed : b_break {};
 // [30]
 struct b_non_content : b_break {};
 
+// ===============================
+// = 5.5. White Space Characters =
+// ===============================
+
 // [31]
 struct s_space : one<' '> {};
 // [32]
@@ -276,10 +297,19 @@ struct s_tab : one<'\t'> {};
 struct s_white : sor<s_space, s_tab> {};
 // [34]
 struct ns_char : seq<not_at<s_white>, nb_char> {};
+
+// =================================
+// = 5.6. Miscellaneous Characters =
+// =================================
+
 // [35]
 struct ns_dec_digit : digit {};
 // [36]
 struct ns_hex_digit : xdigit {};
+
+// ===========================
+// = 5.7. Escaped Characters =
+// ===========================
 
 // [42]
 struct ns_esc_null : one<'0'> {};
@@ -333,6 +363,10 @@ struct c_ns_esc_char
               ns_esc_line_separator, ns_esc_paragraph_separator, ns_esc_8_bit,
               ns_esc_16_bit, ns_esc_32_bit>> {};
 
+// ===========================
+// = 6.1. Indentation Spaces =
+// ===========================
+
 // [63]
 struct s_indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
@@ -357,8 +391,17 @@ struct s_indent {
   }
 };
 
+// ==========================
+// = 6.2. Separation Spaces =
+// ==========================
+
 // [66]
 struct s_separate_in_line : sor<plus<s_white>, bol> {};
+
+// ======================
+// = 6.3. Line Prefixes =
+// ======================
+
 // [67]
 struct s_block_line_prefix;
 struct s_flow_line_prefix;
@@ -370,9 +413,18 @@ struct s_block_line_prefix : s_indent {};
 // [69]
 struct s_flow_line_prefix : seq<s_indent, opt<s_separate_in_line>> {};
 
+// ====================
+// = 6.4. Empty Lines =
+// ====================
+
 // [70]
 struct s_indent_smaller : with_updated_indent<less_indent, s_indent> {};
 struct l_empty : seq<sor<s_line_prefix, s_indent_smaller>, b_as_line_feed> {};
+
+// =====================
+// = 6.5. Line Folding =
+// =====================
+
 // [71]
 struct b_l_trimmed : seq<b_non_content, plus<l_empty>> {};
 // [72]
@@ -384,6 +436,10 @@ struct s_flow_folded
     : seq<opt<s_separate_in_line>,
           with_updated_context<State::Context::FLOW_IN, b_l_folded>,
           s_flow_line_prefix> {};
+
+// =================
+// = 6.6. Comments =
+// =================
 
 // [75]
 struct c_nb_comment_text : seq<one<'#'>, star<nb_char>> {};
@@ -397,6 +453,14 @@ struct l_comment : seq<s_separate_in_line, opt<c_nb_comment_text>, b_comment> {
 };
 // [79]
 struct s_l_comments : seq<sor<s_b_comment, bol>, star<l_comment>> {};
+
+// ===========================
+// = 7.3. Flow Scalar Styles =
+// ===========================
+
+// ==============================
+// = 7.3.1. Double-Quoted Style =
+// ==============================
 
 // [107]
 struct nb_double_char : sor<c_ns_esc_char, minus<nb_json, one<'\\', '"'>>> {};
@@ -430,6 +494,10 @@ struct s_double_next_line
 struct nb_double_multi_line
     : seq<nb_ns_double_in_line, sor<s_double_next_line, star<s_white>>> {};
 
+// ==============================
+// = 7.3.2. Single-Quoted Style =
+// ==============================
+
 // [117]
 struct c_quoted_quote : rep<2, one<'\''>> {};
 // [118]
@@ -456,6 +524,10 @@ struct s_single_next_line
 // [125]
 struct nb_single_multi_line
     : seq<nb_ns_single_in_line, sor<s_single_next_line, star<s_white>>> {};
+
+// ======================
+// = 7.3.3. Plain Style =
+// ======================
 
 // [126]
 struct ns_plain_safe;
