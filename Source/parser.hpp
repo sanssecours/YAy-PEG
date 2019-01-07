@@ -220,6 +220,8 @@ struct nb_json : sor<one<0x9>, range<0x20, 0x10FFFF>> {};
 
 // [3]
 struct c_byte_order_mark : one<0xFEFF> {};
+// [12]
+struct c_comment : one<'#'> {};
 
 // [22]
 struct c_indicator : one<'-', '?', ':', ',', '[', ']', '{', '}', '#', '&', '*',
@@ -374,6 +376,19 @@ struct s_flow_folded
     : seq<opt<s_separate_in_line>,
           with_updated_context<State::Context::FLOW_IN, b_l_folded>,
           s_flow_line_prefix> {};
+
+// [75]
+struct c_nb_comment_text : seq<one<'#'>, star<nb_char>> {};
+// [76]
+struct b_comment : sor<b_non_content, eof> {};
+// [77]
+struct s_b_comment
+    : seq<opt<s_separate_in_line, opt<c_nb_comment_text>>, b_comment> {};
+// [78]
+struct l_comment : seq<s_separate_in_line, opt<c_nb_comment_text>, b_comment> {
+};
+// [79]
+struct s_l_comments : seq<sor<s_b_comment, bol>, star<l_comment>> {};
 
 // [107]
 struct nb_double_char : sor<c_ns_esc_char, minus<nb_json, one<'\\', '"'>>> {};
