@@ -55,10 +55,12 @@ namespace yaypeg {
 using tao::TAO_PEGTL_NAMESPACE::at;
 using tao::TAO_PEGTL_NAMESPACE::blank;
 using tao::TAO_PEGTL_NAMESPACE::bol;
+using tao::TAO_PEGTL_NAMESPACE::digit;
 using tao::TAO_PEGTL_NAMESPACE::eof;
 using tao::TAO_PEGTL_NAMESPACE::eolf;
 using tao::TAO_PEGTL_NAMESPACE::failure;
 using tao::TAO_PEGTL_NAMESPACE::identifier;
+using tao::TAO_PEGTL_NAMESPACE::minus;
 using tao::TAO_PEGTL_NAMESPACE::must;
 using tao::TAO_PEGTL_NAMESPACE::not_at;
 using tao::TAO_PEGTL_NAMESPACE::nothing;
@@ -70,7 +72,9 @@ using tao::TAO_PEGTL_NAMESPACE::sor;
 using tao::TAO_PEGTL_NAMESPACE::star;
 using tao::TAO_PEGTL_NAMESPACE::success;
 using tao::TAO_PEGTL_NAMESPACE::until;
+using tao::TAO_PEGTL_NAMESPACE::xdigit;
 using tao::TAO_PEGTL_NAMESPACE::utf8::one;
+using tao::TAO_PEGTL_NAMESPACE::utf8::range;
 using tao::TAO_PEGTL_NAMESPACE::utf8::ranges;
 
 // ==========================
@@ -187,6 +191,9 @@ struct c_printable
     : sor<one<'\t', '\n', '\r', 0x85>,
           ranges<' ', 0x7E, 0xA0, 0xD7FF, 0xE000, 0xFFFD, 0x10000, 0x10FFFF>> {
 };
+// [2]
+struct nb_json : sor<one<0x9>, range<0x20, 0x10FFFF>> {};
+
 // [3]
 struct c_byte_order_mark : one<0xFEFF> {};
 
@@ -222,6 +229,62 @@ struct s_tab : one<'\t'> {};
 struct s_white : sor<s_space, s_tab> {};
 // [34]
 struct ns_char : seq<not_at<s_white>, nb_char> {};
+// [35]
+struct ns_dec_digit : digit {};
+// [36]
+struct ns_hex_digit : xdigit {};
+
+// [42]
+struct ns_esc_null : one<'0'> {};
+// [43]
+struct ns_esc_bell : one<'a'> {};
+// [44]
+struct ns_esc_backspace : one<'b'> {};
+// [45]
+struct ns_esc_horizontal_tab : one<'t', 0x9> {};
+// [46]
+struct ns_esc_line_feed : one<'n'> {};
+// [47]
+struct ns_esc_vertical_tab : one<'v'> {};
+// [48]
+struct ns_esc_form_feed : one<'f'> {};
+// [49]
+struct ns_esc_carriage_return : one<'r'> {};
+// [50]
+struct ns_esc_escape : one<'e'> {};
+// [51]
+struct ns_esc_space : one<0x20> {};
+// [52]
+struct ns_esc_double_quote : one<'"'> {};
+// [53]
+struct ns_esc_slash : one<'/'> {};
+// [54]
+struct ns_esc_backslash : one<'\\'> {};
+// [55]
+struct ns_esc_next_line : one<'N'> {};
+// [56]
+struct ns_esc_non_breaking_space : one<'_'> {};
+// [57]
+struct ns_esc_line_separator : one<'L'> {};
+// [58]
+struct ns_esc_paragraph_separator : one<'P'> {};
+// [59]
+struct ns_esc_8_bit : seq<one<'x'>, rep<2, ns_hex_digit>> {};
+// [60]
+struct ns_esc_16_bit : seq<one<'u'>, rep<4, ns_hex_digit>> {};
+// [61]
+struct ns_esc_32_bit : seq<one<'U'>, rep<8, ns_hex_digit>> {};
+
+// [62]
+struct c_ns_esc_char
+    : seq<one<'\\'>,
+          sor<ns_esc_null, ns_esc_bell, ns_esc_backspace, ns_esc_horizontal_tab,
+              ns_esc_line_feed, ns_esc_vertical_tab, ns_esc_form_feed,
+              ns_esc_carriage_return, ns_esc_escape, ns_esc_space,
+              ns_esc_double_quote, ns_esc_slash, ns_esc_backslash,
+              ns_esc_next_line, ns_esc_non_breaking_space,
+              ns_esc_line_separator, ns_esc_paragraph_separator, ns_esc_8_bit,
+              ns_esc_16_bit, ns_esc_32_bit>> {};
 
 // [63]
 struct s_indent {
@@ -287,6 +350,9 @@ struct s_flow_folded
     : seq<opt<s_separate_in_line>,
           with_updated_context<State::Context::FLOW_IN, b_l_folded>,
           s_flow_line_prefix> {};
+
+// [107]
+struct nb_double_char : sor<c_ns_esc_char, minus<nb_json, one<'\\', '"'>>> {};
 
 // [126]
 struct ns_plain_safe;
