@@ -366,7 +366,7 @@ struct ns_plain {
   }
 };
 
-struct plain_scalar : ns_plain_one_line {};
+struct plain_scalar : ns_plain {};
 
 struct child;
 
