@@ -35,7 +35,7 @@ struct State {
   std::stack<Context> context{{Context::BLOCK_IN}};
   std::deque<size_t> indentation;
 
-  char lastWasNsChar = false;
+  bool lastWasNsChar = false;
 
   std::string key;
   std::stack<kdb::Key> parents;
