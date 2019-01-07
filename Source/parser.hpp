@@ -110,7 +110,6 @@ struct push_indent {
 };
 
 struct pop_indent : success {};
-
 template <> struct action<pop_indent> {
   template <typename Input> static void apply(const Input &, State &state) {
     if (state.indentation.empty()) {
@@ -118,6 +117,26 @@ template <> struct action<pop_indent> {
     }
     state.indentation.pop_back();
     LOGF("State: {}", state.toString());
+  }
+};
+
+template <State::Context Context> struct push_context {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
+            template <typename...> class, typename Input>
+  static bool match(Input &, State &state) {
+    state.context.push(Context);
+    return true;
+  }
+};
+
+struct pop_context : success {};
+template <> struct action<pop_context> {
+  template <typename Input> static void apply(const Input &, State &state) {
+    state.context.pop();
   }
 };
 
@@ -129,6 +148,10 @@ struct with_updated_state
 template <typename... Rules>
 struct with_updated_indent
     : with_updated_state<push_indent, pop_indent, Rules...> {};
+
+template <State::Context Context, typename... Rules>
+struct with_updated_context
+    : with_updated_state<push_context<Context>, pop_context, Rules...> {};
 
 // =========================
 // = Parser Context Checks =
@@ -151,8 +174,9 @@ template <typename Comparator, bool DefaultValue = false> struct indent {
   }
 };
 
-struct more_indent : indent<std::greater<size_t>, true> {};
+struct less_indent : indent<std::less<size_t>> {};
 struct same_indent : indent<std::equal_to<size_t>> {};
+struct more_indent : indent<std::greater<size_t>, true> {};
 
 // ===========
 // = Grammar =
@@ -185,6 +209,8 @@ struct b_break
     : sor<seq<b_carriage_return, b_line_feed>, b_carriage_return, b_line_feed> {
 };
 
+// [29]
+struct b_as_line_feed : b_break {};
 // [30]
 struct b_non_content : b_break {};
 
@@ -223,6 +249,44 @@ struct s_indent {
 
 // [66]
 struct s_separate_in_line : sor<plus<s_white>, bol> {};
+// [68]
+struct s_block_line_prefix : s_indent {};
+// [69]
+struct s_flow_line_prefix : seq<s_indent, opt<s_separate_in_line>> {};
+// [67]
+struct s_line_prefix {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
+            template <typename...> class Action,
+            template <typename...> class Control, typename Input>
+  static bool match(Input &input, State &state) {
+    if (state.context.top() == State::Context::BLOCK_OUT ||
+        state.context.top() == State::Context::BLOCK_IN) {
+      return s_block_line_prefix::match<ApplyMode, RewindMode, Action, Control>(
+          input, state);
+    }
+    return s_flow_line_prefix::match<ApplyMode, RewindMode, Action, Control>(
+        input, state);
+  }
+};
+
+// [70]
+struct s_indent_smaller : with_updated_indent<less_indent, s_indent> {};
+struct l_empty : seq<sor<s_line_prefix, s_indent_smaller>, b_as_line_feed> {};
+// [71]
+struct b_l_trimmed : seq<b_non_content, plus<l_empty>> {};
+// [72]
+struct b_as_space : b_break {};
+// [73]
+struct b_l_folded : sor<b_l_trimmed, b_as_space> {};
+// [74]
+struct s_flow_folded
+    : seq<opt<s_separate_in_line>,
+          with_updated_context<State::Context::FLOW_IN, b_l_folded>,
+          s_flow_line_prefix> {};
 
 // [126]
 struct ns_plain_safe;
@@ -275,6 +339,13 @@ struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
 struct nb_ns_plain_in_line : star<seq<star<s_white>>, ns_plain_char> {};
 // [133]
 struct ns_plain_one_line : seq<ns_plain_first, nb_ns_plain_in_line> {};
+// [134]
+struct s_ns_plain_next_line
+    : seq<s_flow_folded, ns_plain_char, nb_ns_plain_in_line> {};
+// [135]
+struct ns_plain_multi_line
+    : seq<ns_plain_one_line, star<s_ns_plain_next_line>> {};
+
 // [131]
 struct ns_plain {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
@@ -285,6 +356,11 @@ struct ns_plain {
             template <typename...> class Action,
             template <typename...> class Control, typename Input>
   static bool match(Input &input, State &state) {
+    if (state.context.top() == State::Context::FLOW_OUT ||
+        state.context.top() == State::Context::FLOW_IN) {
+      return ns_plain_multi_line::match<ApplyMode, RewindMode, Action, Control>(
+          input, state);
+    }
     return ns_plain_one_line::match<ApplyMode, RewindMode, Action, Control>(
         input, state);
   }
