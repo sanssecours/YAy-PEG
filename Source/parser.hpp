@@ -430,6 +430,33 @@ struct s_double_next_line
 struct nb_double_multi_line
     : seq<nb_ns_double_in_line, sor<s_double_next_line, star<s_white>>> {};
 
+// [117]
+struct c_quoted_quote : rep<2, one<'\''>> {};
+// [118]
+struct nb_single_char : sor<c_quoted_quote, minus<nb_json, one<'\''>>> {};
+// [119]
+struct ns_single_char : minus<nb_single_char, s_white> {};
+// [120]
+struct nb_single_text;
+struct c_single_quoted : seq<one<'\''>, nb_single_text, one<'\''>> {};
+// [121]
+struct nb_single_multi_line;
+struct nb_single_one_line;
+struct nb_single_text
+    : if_context_else<State::Context::FLOW_OUT, State::Context::FLOW_IN,
+                      nb_single_multi_line, nb_single_one_line> {};
+// [122]
+struct nb_single_one_line : star<nb_single_char> {};
+// [123]
+struct nb_ns_single_in_line : star<star<s_white>, ns_single_char> {};
+// [124]
+struct s_single_next_line
+    : seq<s_flow_folded, opt<ns_single_char, nb_ns_single_in_line,
+                             sor<s_single_next_line, star<s_white>>>> {};
+// [125]
+struct nb_single_multi_line
+    : seq<nb_ns_single_in_line, sor<s_single_next_line, star<s_white>>> {};
+
 // [126]
 struct ns_plain_safe;
 struct ns_plain_first : sor<seq<not_at<c_indicator>, ns_char>,
