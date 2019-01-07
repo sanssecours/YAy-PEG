@@ -353,6 +353,52 @@ struct s_flow_folded
 
 // [107]
 struct nb_double_char : sor<c_ns_esc_char, minus<nb_json, one<'\\', '"'>>> {};
+// [108]
+struct ns_double_char : minus<nb_double_char, s_white> {};
+// [109]
+struct nb_double_text;
+struct c_double_quoted : seq<one<'"'>, nb_double_text, one<'"'>> {};
+
+// [111]
+struct nb_double_one_line : star<nb_double_char> {};
+// [116]
+struct nb_ns_double_in_line;
+struct s_double_next_line;
+struct nb_double_multi_line
+    : seq<nb_ns_double_in_line, sor<s_double_next_line, star<s_white>>> {};
+// [110]
+struct nb_double_text {
+  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
+      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
+
+  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
+            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
+            template <typename...> class Action,
+            template <typename...> class Control, typename Input>
+  static bool match(Input &input, State &state) {
+    if (state.context.top() == State::Context::FLOW_OUT ||
+        state.context.top() == State::Context::FLOW_IN) {
+      return nb_double_multi_line::match<ApplyMode, RewindMode, Action,
+                                         Control>(input, state);
+    }
+    return nb_double_one_line::match<ApplyMode, RewindMode, Action, Control>(
+        input, state);
+  }
+};
+
+// [112]
+struct s_double_escaped
+    : seq<star<s_white>, one<'\\'>, b_non_content,
+          with_updated_context<State::Context::FLOW_IN, star<l_empty>>,
+          s_flow_line_prefix> {};
+// [113]
+struct s_double_break : sor<s_double_escaped, s_flow_folded> {};
+// [114]
+struct nb_ns_double_in_line : star<star<s_white>, ns_double_char> {};
+// [115]
+struct s_double_next_line
+    : seq<s_double_break, opt<ns_double_char, nb_ns_double_in_line,
+                              sor<s_double_next_line, star<s_white>>>> {};
 
 // [126]
 struct ns_plain_safe;
