@@ -48,7 +48,31 @@ using std::shared_ptr;
 extern shared_ptr<spdlog::logger> console;
 #endif
 
-// -- Rules --------------------------------------------------------------------
+// -- Functions ----------------------------------------------------------------
+
+namespace {
+
+/**
+ * @brief This function converts a YAML scalar to a string.
+ *
+ * @param text This string contains a YAML scalar (including quote
+ *             characters).
+ *
+ * @return A string without leading and trailing quote characters
+ */
+std::string scalarToText(std::string const &text) {
+  if (text.length() == 0) {
+    return text;
+  }
+  if (*(text.begin()) == '"' || *(text.begin()) == '\'') {
+    return text.substr(1, text.length() - 2);
+  }
+  return text;
+}
+
+} // namespace
+
+// -- Rules & Actions ----------------------------------------------------------
 
 namespace yaypeg {
 
@@ -479,10 +503,11 @@ struct ns_plain {
 };
 
 struct plain_scalar : ns_plain {};
+struct double_quoted_scalar : c_double_quoted {};
 
 struct child;
 
-struct scalar : plain_scalar {};
+struct scalar : sor<plain_scalar, double_quoted_scalar> {};
 struct key : scalar {};
 struct key_value_indicator : seq<key, star<blank>, one<':'>> {};
 struct value : scalar {};
@@ -502,7 +527,7 @@ struct yaml : child {};
 template <> struct action<key> : base<key> {
   template <typename Input>
   static void apply(const Input &input, State &state) {
-    state.key = input.string();
+    state.key = scalarToText(input.string());
     LOGF("Possible Key: “{}”", state.key);
   }
 };
@@ -521,7 +546,7 @@ template <> struct action<value> : base<value> {
   template <typename Input>
   static void apply(const Input &input, State &state) {
     kdb::Key key = state.parents.top();
-    key.setString(input.string());
+    key.setString(scalarToText(input.string()));
     state.keys.append(key);
   }
 };
