@@ -613,7 +613,7 @@ struct ns_s_implicit_yaml_key
     : seq<ns_flow_yaml_node, opt<s_separate_in_line>> {};
 template <> struct action<ns_s_implicit_yaml_key> {
   template <typename Input> static bool apply(const Input &input, State &) {
-    return input.string().size <= 1024;
+    return input.string().size() <= 1024;
   }
 };
 // [155]
@@ -622,7 +622,7 @@ struct c_s_implicit_json_key : seq<c_flow_json_node, opt<s_separate_in_line>> {
 };
 template <> struct action<c_s_implicit_json_key> {
   template <typename Input> static bool apply(const Input &input, State &) {
-    return input.string().size <= 1024;
+    return input.string().size() <= 1024;
   }
 };
 
