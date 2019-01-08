@@ -590,6 +590,12 @@ struct ns_flow_yaml_content : ns_plain {};
 struct c_flow_json_content : sor<c_single_quoted, c_double_quoted> {};
 // [158]
 struct ns_flow_content : sor<ns_flow_yaml_content, c_flow_json_content> {};
+// [159] (Incomplete)
+struct ns_flow_yaml_node : ns_flow_yaml_content {};
+// [160] (Incomplete)
+struct c_flow_json_node : c_flow_json_content {};
+// [161] (Incomplete)
+struct ns_flow_node : ns_flow_content {};
 
 struct child;
 
