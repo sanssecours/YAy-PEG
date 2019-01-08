@@ -599,6 +599,29 @@ struct s_ns_plain_next_line
 struct ns_plain_multi_line
     : seq<ns_plain_one_line, star<s_ns_plain_next_line>> {};
 
+// ========================
+// = 7.4.2. Flow Mappings =
+// ========================
+
+// [154]
+struct ns_flow_yaml_node;
+struct ns_s_implicit_yaml_key
+    : seq<ns_flow_yaml_node, opt<s_separate_in_line>> {};
+template <> struct action<ns_s_implicit_yaml_key> {
+  template <typename Input> static bool apply(const Input &input, State &) {
+    return input.string().size <= 1024;
+  }
+};
+// [155]
+struct c_flow_json_node;
+struct c_s_implicit_json_key : seq<c_flow_json_node, opt<s_separate_in_line>> {
+};
+template <> struct action<c_s_implicit_json_key> {
+  template <typename Input> static bool apply(const Input &input, State &) {
+    return input.string().size <= 1024;
+  }
+};
+
 // ===================
 // = 7.5. Flow Nodes =
 // ===================
