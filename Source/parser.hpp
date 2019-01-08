@@ -643,6 +643,65 @@ struct c_flow_json_node : c_flow_json_content {};
 // [161] (Incomplete)
 struct ns_flow_node : ns_flow_content {};
 
+// ================================
+// = 8.2. Block Collection Styles =
+// ================================
+
+// =========================
+// = 8.2.2. Block Mappings =
+// =========================
+
+// [187]
+struct ns_l_block_map_entry;
+struct l_plus_block_mapping
+    : with_updated_indent<more_indent, plus<s_indent, ns_l_block_map_entry>> {};
+;
+// [188] (Incomplete)
+struct ns_l_block_map_implicit_entry;
+struct ns_l_block_map_entry : sor<ns_l_block_map_implicit_entry> {};
+// [192]
+struct ns_s_block_map_implicit_key;
+struct c_l_block_map_implicit_value;
+struct ns_l_block_map_implicit_entry
+    : seq<sor<ns_s_block_map_implicit_key, e_node>,
+          c_l_block_map_implicit_value> {};
+// [193]
+struct ns_s_block_map_implicit_key
+    : with_updated_context<State::Context::BLOCK_KEY,
+                           sor<c_s_implicit_json_key, ns_s_implicit_yaml_key>> {
+};
+// [194]
+struct s_l_plus_block_node;
+struct c_l_block_map_implicit_value
+    : seq<one<':'>, sor<with_updated_context<State::Context::BLOCK_OUT,
+                                             s_l_plus_block_node>,
+                        seq<e_node, s_l_comments>>> {};
+// [195]
+struct ns_l_compact_mapping
+    : seq<ns_l_block_map_entry, star<s_indent, ns_l_block_map_entry>> {};
+
+// ======================
+// = 8.2.3. Block Nodes =
+// ======================
+
+// [196]
+struct s_l_plus_block_in_block;
+struct s_l_plus_flow_in_block;
+struct s_l_plus_block_node
+    : sor<s_l_plus_block_in_block, s_l_plus_flow_in_block> {};
+// [197]
+struct s_l_plus_flow_in_block
+    : seq<with_updated_indent_plus_one<
+              with_updated_context<State::Context::FLOW_OUT, ns_flow_node>>,
+          s_l_comments> {};
+
+// [198] (Incomplete)
+struct s_l_plus_block_collection;
+struct s_l_plus_block_in_block : sor<s_l_plus_block_collection> {};
+// [200] (Incomplete)
+// TODO: Add support for sequences
+struct s_l_plus_block_collection : seq<s_l_comments, l_plus_block_mapping> {};
+
 struct child;
 
 struct key : ns_flow_content {};
