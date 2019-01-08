@@ -187,6 +187,10 @@ template <typename... Rules>
 struct with_updated_indent
     : with_updated_state<push_indent, pop_indent, Rules...> {};
 
+template <typename... Rules>
+struct with_updated_indent_plus_one
+    : with_updated_state<push_indent_plus_one, pop_indent, Rules...> {};
+
 template <State::Context Context, typename... Rules>
 struct with_updated_context
     : with_updated_state<push_context<Context>, pop_context, Rules...> {};
