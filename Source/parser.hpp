@@ -714,6 +714,16 @@ struct s_l_plus_block_collection : seq<s_l_comments, l_plus_block_mapping> {};
 struct l_bare_document
     : with_updated_context<State::Context::BLOCK_IN, s_l_plus_block_node> {};
 
+// ================
+// = 9.2. Streams =
+// ================
+
+// [210] (Incomplete)
+struct l_any_document : sor<l_bare_document> {};
+
+// [211] (Incomplete)
+struct l_yaml_stream : opt<l_any_document> {};
+
 struct child;
 
 struct key : ns_flow_content {};
