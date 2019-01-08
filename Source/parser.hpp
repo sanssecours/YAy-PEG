@@ -591,17 +591,11 @@ struct c_flow_json_content : sor<c_single_quoted, c_double_quoted> {};
 // [158]
 struct ns_flow_content : sor<ns_flow_yaml_content, c_flow_json_content> {};
 
-struct plain_scalar : ns_plain {};
-struct single_quoted_scalar : c_single_quoted {};
-struct double_quoted_scalar : c_double_quoted {};
-
 struct child;
 
-struct scalar : sor<plain_scalar, single_quoted_scalar, double_quoted_scalar> {
-};
-struct key : scalar {};
+struct key : ns_flow_content {};
 struct key_value_indicator : seq<key, star<blank>, one<':'>> {};
-struct value : scalar {};
+struct value : ns_flow_content {};
 struct pair
     : seq<key_value_indicator, sor<seq<blank, value, eolf>, seq<eolf, child>>> {
 };
