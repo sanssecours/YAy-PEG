@@ -137,6 +137,16 @@ struct push_indent {
   }
 };
 
+struct push_indent_plus_one : success {};
+template <> struct action<push_indent_plus_one> {
+  template <typename Input> static void apply(const Input &, State &state) {
+    size_t indent =
+        !state.indentation.empty() ? state.indentation.back() + 1 : 1;
+    state.indentation.push_back(indent);
+    LOGF("State: {}", state.toString());
+  }
+};
+
 struct pop_indent : success {};
 template <> struct action<pop_indent> {
   template <typename Input> static void apply(const Input &, State &state) {
