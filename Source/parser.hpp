@@ -702,6 +702,18 @@ struct s_l_plus_block_in_block : sor<s_l_plus_block_collection> {};
 // TODO: Add support for sequences
 struct s_l_plus_block_collection : seq<s_l_comments, l_plus_block_mapping> {};
 
+// ==================
+// = 9.1. Documents =
+// ==================
+
+// =========================
+// = 9.1.3. Bare Documents =
+// =========================
+
+// [207]
+struct l_bare_document
+    : with_updated_context<State::Context::BLOCK_IN, s_l_plus_block_node> {};
+
 struct child;
 
 struct key : ns_flow_content {};
