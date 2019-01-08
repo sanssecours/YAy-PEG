@@ -706,13 +706,30 @@ struct s_l_plus_block_collection : seq<s_l_comments, l_plus_block_mapping> {};
 // = 9.1. Documents =
 // ==================
 
+// ===========================
+// = 9.1.2. Document Markers =
+// ===========================
+
+// [203]
+struct c_directives_end : rep<3, one<'-'>> {};
+// [204]
+struct c_document_end : rep<3, one<'.'>> {};
+// [205]
+struct l_document_suffix : seq<c_document_end, s_l_comments> {};
+// [206]
+struct c_forbidden : seq<bol, sor<c_directives_end, c_document_end>,
+                         sor<b_char, s_white, eof>> {};
+
 // =========================
 // = 9.1.3. Bare Documents =
 // =========================
 
 // [207]
+// TODO: Check for `c_forbidden` in every line and not just at the
+// beginning of the document.
 struct l_bare_document
-    : with_updated_context<State::Context::BLOCK_IN, s_l_plus_block_node> {};
+    : with_updated_context<State::Context::BLOCK_IN, not_at<c_forbidden>,
+                           s_l_plus_block_node> {};
 
 // ================
 // = 9.2. Streams =
