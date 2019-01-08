@@ -456,6 +456,15 @@ struct l_comment : seq<s_separate_in_line, opt<c_nb_comment_text>, b_comment> {
 // [79]
 struct s_l_comments : seq<sor<s_b_comment, bol>, star<l_comment>> {};
 
+// ====================
+// = 7.2. Empty Nodes =
+// ====================
+
+// [105]
+struct e_scalar : success {};
+// [106]
+struct e_node : e_scalar {};
+
 // ===========================
 // = 7.3. Flow Scalar Styles =
 // ===========================
