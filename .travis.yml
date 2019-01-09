@@ -49,6 +49,7 @@ matrix:
 before_install:
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update
       if [[ "$CC" == "gcc" ]]; then
         brew install gcc
         brew link --overwrite gcc
