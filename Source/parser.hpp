@@ -705,8 +705,8 @@ struct s_l_plus_block_node
     : sor<s_l_plus_block_in_block, s_l_plus_flow_in_block> {};
 // [197]
 struct s_l_plus_flow_in_block
-    : seq<with_updated_indent_plus_one<
-              with_updated_context<State::Context::FLOW_OUT, ns_flow_node>>,
+    : seq<with_updated_indent_plus_one<with_updated_context<
+              State::Context::FLOW_OUT, seq<s_separate, ns_flow_node>>>,
           s_l_comments> {};
 
 // [198] (Incomplete)
