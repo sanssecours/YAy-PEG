@@ -453,6 +453,20 @@ struct s_flow_folded
           with_updated_context<State::Context::FLOW_IN, b_l_folded>,
           s_flow_line_prefix> {};
 
+// ========================
+// = 6.7 Separation Lines =
+// ========================
+
+// [80]
+struct s_separate_lines;
+struct s_separate
+    : if_context_else<State::Context::BLOCK_KEY, State::Context::FLOW_KEY,
+                      s_separate_in_line, s_separate_lines> {};
+// [81]
+struct s_l_comments;
+struct s_separate_lines
+    : sor<seq<s_l_comments, s_flow_line_prefix>, s_separate_in_line> {};
+
 // =================
 // = 6.6. Comments =
 // =================
