@@ -70,6 +70,14 @@ std::string scalarToText(std::string const &text) {
   return text;
 }
 
+static inline void rtrip(std::string &text) {
+  text.erase(
+      std::find_if(text.rbegin(), text.rend(),
+                   [](int character) { return !std::isspace(character); })
+          .base(),
+      text.end());
+}
+
 } // namespace
 
 // -- Rules & Actions ----------------------------------------------------------
