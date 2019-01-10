@@ -43,6 +43,9 @@ struct State {
 
   State(kdb::Key const &parent);
   std::string toString() const noexcept;
+
+private:
+  std::string contextToString() const noexcept;
 };
 
 } // namespace yaypeg

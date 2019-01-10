@@ -25,10 +25,38 @@ using std::next;
 using std::string;
 using std::to_string;
 
+// ===========
+// = Private =
+// ===========
+
+string State::contextToString() const noexcept {
+  if (context.empty()) {
+    return "EMPTY";
+  }
+  if (context.top() == Context::BLOCK_IN) {
+    return "BLOCK_IN";
+  } else if (context.top() == Context::BLOCK_OUT) {
+    return "BLOCK_OUT";
+  } else if (context.top() == Context::BLOCK_KEY) {
+    return "BLOCK_KEY";
+  } else if (context.top() == Context::FLOW_KEY) {
+    return "FLOW_KEY";
+  } else if (context.top() == Context::FLOW_IN) {
+    return "FLOW_IN";
+  } else if (context.top() == Context::FLOW_OUT) {
+    return "FLOW_OUT";
+  }
+  return "UKNOWN";
+}
+
+// ==========
+// = Public =
+// ==========
+
 State::State(Key const &parent) { parents.push(parent.dup()); }
 
 string State::toString() const noexcept {
-  string result =
+  string indents =
       indentation.size() <= 0
           ? ""
           : accumulate(next(indentation.begin()), indentation.end(),
@@ -36,7 +64,8 @@ string State::toString() const noexcept {
                        [](string text, size_t indent) {
                          return move(text) + ", " + to_string(indent);
                        });
-  return "[" + result + "]";
+
+  return "{" + contextToString() + "}" + " [" + indents + "]";
 }
 
 } // namespace yaypeg
