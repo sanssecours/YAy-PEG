@@ -32,16 +32,11 @@ struct State {
     FLOW_OUT
   };
 
-  std::stack<Context> context{{Context::BLOCK_IN}};
+  std::stack<Context> context;
   std::deque<size_t> indentation;
 
   bool lastWasNsChar = false;
 
-  std::string key;
-  std::stack<kdb::Key> parents;
-  kdb::KeySet keys;
-
-  State(kdb::Key const &parent);
   std::string toString() const noexcept;
 
 private:

@@ -53,8 +53,6 @@ string State::contextToString() const noexcept {
 // = Public =
 // ==========
 
-State::State(Key const &parent) { parents.push(parent.dup()); }
-
 string State::toString() const noexcept {
   string indents =
       indentation.size() <= 0

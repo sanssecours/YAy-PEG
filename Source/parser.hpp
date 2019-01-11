@@ -48,38 +48,6 @@ using std::shared_ptr;
 extern shared_ptr<spdlog::logger> console;
 #endif
 
-// -- Functions ----------------------------------------------------------------
-
-namespace {
-
-/**
- * @brief This function converts a YAML scalar to a string.
- *
- * @param text This string contains a YAML scalar (including quote
- *             characters).
- *
- * @return A string without leading and trailing quote characters
- */
-std::string scalarToText(std::string const &text) {
-  if (text.length() == 0) {
-    return text;
-  }
-  if (*(text.begin()) == '"' || *(text.begin()) == '\'') {
-    return text.substr(1, text.length() - 2);
-  }
-  return text;
-}
-
-static inline void rtrip(std::string &text) {
-  text.erase(
-      std::find_if(text.rbegin(), text.rend(),
-                   [](int character) { return !std::isspace(character); })
-          .base(),
-      text.end());
-}
-
-} // namespace
-
 // -- Rules & Actions ----------------------------------------------------------
 
 namespace yaypeg {
@@ -763,56 +731,7 @@ struct l_any_document : sor<l_bare_document> {};
 // [211] (Incomplete)
 struct l_yaml_stream : opt<l_any_document> {};
 
-struct child;
-
-struct key : ns_flow_content {};
-struct key_value_indicator : seq<key, star<blank>, one<':'>> {};
-struct value : ns_flow_content {};
-struct pair
-    : seq<key_value_indicator, sor<seq<blank, value, eolf>, seq<eolf, child>>> {
-};
-struct map : with_updated_indent<more_indent, plus<s_indent, pair>> {};
-struct indented_scalar : with_updated_indent<more_indent, s_indent, value> {};
-
-struct child : sor<map, indented_scalar> {};
-struct yaml : child {};
-
-// ================
-// = Data Updates =
-// ================
-
-template <> struct action<key> : base<key> {
-  template <typename Input>
-  static void apply(const Input &input, State &state) {
-    state.key = scalarToText(input.string());
-    LOGF("Possible Key: “{}”", state.key);
-  }
-};
-
-template <> struct action<key_value_indicator> : base<key_value_indicator> {
-  template <typename Input> static void apply(const Input &, State &state) {
-    kdb::Key child{state.parents.top().getName(), KEY_END};
-    child.addBaseName(state.key);
-    state.parents.push(child);
-
-    LOGF("🔑: “{}”", state.key);
-  }
-};
-
-template <> struct action<value> : base<value> {
-  template <typename Input>
-  static void apply(const Input &input, State &state) {
-    kdb::Key key = state.parents.top();
-    key.setString(scalarToText(input.string()));
-    state.keys.append(key);
-  }
-};
-
-template <> struct action<pair> : base<pair> {
-  template <typename Input> static void apply(const Input &, State &state) {
-    state.parents.pop();
-  }
-};
+struct yaml : l_yaml_stream {};
 
 } // namespace yaypeg
 
