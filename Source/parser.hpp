@@ -60,7 +60,6 @@ using tao::TAO_PEGTL_NAMESPACE::eof;
 using tao::TAO_PEGTL_NAMESPACE::eolf;
 using tao::TAO_PEGTL_NAMESPACE::failure;
 using tao::TAO_PEGTL_NAMESPACE::identifier;
-using tao::TAO_PEGTL_NAMESPACE::minus;
 using tao::TAO_PEGTL_NAMESPACE::must;
 using tao::TAO_PEGTL_NAMESPACE::not_at;
 using tao::TAO_PEGTL_NAMESPACE::nothing;
@@ -478,9 +477,10 @@ struct e_node : e_scalar {};
 // ==============================
 
 // [107]
-struct nb_double_char : sor<c_ns_esc_char, minus<nb_json, one<'\\', '"'>>> {};
+struct nb_double_char
+    : sor<c_ns_esc_char, seq<not_at<one<'\\', '"'>>, nb_json>> {};
 // [108]
-struct ns_double_char : minus<nb_double_char, s_white> {};
+struct ns_double_char : seq<not_at<s_white>, nb_double_char> {};
 // [109]
 struct nb_double_text;
 struct c_double_quoted : seq<one<'"'>, nb_double_text, one<'"'>> {};
@@ -516,9 +516,9 @@ struct nb_double_multi_line
 // [117]
 struct c_quoted_quote : rep<2, one<'\''>> {};
 // [118]
-struct nb_single_char : sor<c_quoted_quote, minus<nb_json, one<'\''>>> {};
+struct nb_single_char : sor<c_quoted_quote, seq<not_at<one<'\''>>, nb_json>> {};
 // [119]
-struct ns_single_char : minus<nb_single_char, s_white> {};
+struct ns_single_char : seq<not_at<s_white>, nb_single_char> {};
 // [120]
 struct nb_single_text;
 struct c_single_quoted : seq<one<'\''>, nb_single_text, one<'\''>> {};
