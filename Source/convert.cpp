@@ -14,6 +14,7 @@
 
 #define TAO_PEGTL_NAMESPACE yaypeg
 
+#include <tao/pegtl/contrib/parse_tree.hpp>
 #include <tao/pegtl/contrib/tracer.hpp>
 
 namespace yaypeg {
@@ -56,7 +57,10 @@ int addToKeySet(KeySet &keySet, Key &, string const &filename) {
   file_input<> input{filename};
 
   try {
-    parse<yaml, action, tracer>(input, state);
+    auto root = parse<yaml, action, tracer>(input, state);
+    if (root) {
+      std::cout << "\\o/" << std::endl;
+    }
   } catch (parse_error const &error) {
     cerr << error.what() << endl;
     return -1;
