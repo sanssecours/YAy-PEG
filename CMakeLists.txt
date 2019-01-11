@@ -56,6 +56,8 @@ set(SOURCE_FILES
     ${SOURCE_DIRECTORY}/convert.cpp
     ${SOURCE_DIRECTORY}/listener.hpp
     ${SOURCE_DIRECTORY}/listener.cpp
+    ${SOURCE_DIRECTORY}/walk.hpp
+    ${SOURCE_DIRECTORY}/walk.cpp
     ${SOURCE_DIRECTORY}/parser.hpp
     ${SOURCE_DIRECTORY}/state.hpp
     ${SOURCE_DIRECTORY}/state.cpp
