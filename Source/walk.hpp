@@ -28,7 +28,7 @@
  * @param root This variable stores the root of the tree this function visits.
  */
 void walk(Listener &listener __attribute__((unused)),
-          tao::TAO_PEGTL_NAMESPACE::parse_tree::node const
+          tao::TAO_PEGTL_NAMESPACE::parse_tree::node const &root
           __attribute__((unused)));
 
 #endif // ELEKTRA_PLUGIN_YAYPEG_WALK_HPP

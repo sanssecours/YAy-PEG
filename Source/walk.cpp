@@ -25,4 +25,4 @@ using tao::TAO_PEGTL_NAMESPACE::parse_tree::node;
  *             visits.
  */
 void walk(Listener &listener __attribute__((unused)),
-          node const root __attribute__((unused))) {}
+          node const &root __attribute__((unused))) {}

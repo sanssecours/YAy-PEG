@@ -9,8 +9,10 @@
 // -- Imports ------------------------------------------------------------------
 
 #include "convert.hpp"
+#include "listener.hpp"
 #include "parser.hpp"
 #include "state.hpp"
+#include "walk.hpp"
 
 #define TAO_PEGTL_NAMESPACE yaypeg
 
@@ -40,7 +42,7 @@ using std::string;
  *            given keyset
  * @retval  1 if parsing was successful and the function did change `keySet`
  */
-int addToKeySet(KeySet &keySet, Key &, string const &filename) {
+int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
   using std::cerr;
   using std::endl;
   using tao::TAO_PEGTL_NAMESPACE::analyze;
@@ -55,19 +57,20 @@ int addToKeySet(KeySet &keySet, Key &, string const &filename) {
 
   file_input<> input{filename};
 
+  KeySet keys;
   try {
+
     auto root =
         tao::TAO_PEGTL_NAMESPACE::parse_tree::parse<yaml, selector, action,
                                                     tracer>(input, state);
-    if (root) {
-      std::cout << "\\o/" << std::endl;
-    }
+    Listener listener{parent};
+    walk(listener, *root);
+    keys = listener.getKeySet();
+
   } catch (parse_error const &error) {
     cerr << error.what() << endl;
     return -1;
   }
-
-  KeySet keys;
 
   int status = (keys.size() <= 0) ? 0 : 1;
 
