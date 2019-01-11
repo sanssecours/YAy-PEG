@@ -733,6 +733,11 @@ struct l_yaml_stream : opt<l_any_document> {};
 
 struct yaml : l_yaml_stream {};
 
+// -- Parse Tree Selector ------------------------------------------------------
+
+template <typename Rule> struct selector : std::false_type {};
+template <> struct selector<s_l_plus_block_node> : std::true_type {};
+
 } // namespace yaypeg
 
 #endif // ELEKTRA_PLUGIN_YAYPEG_GRAMMAR_HPP

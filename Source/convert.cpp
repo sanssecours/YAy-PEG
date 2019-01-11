@@ -45,7 +45,6 @@ int addToKeySet(KeySet &keySet, Key &, string const &filename) {
   using std::endl;
   using tao::TAO_PEGTL_NAMESPACE::analyze;
   using tao::TAO_PEGTL_NAMESPACE::file_input;
-  using tao::TAO_PEGTL_NAMESPACE::parse;
   using tao::TAO_PEGTL_NAMESPACE::parse_error;
   using tao::TAO_PEGTL_NAMESPACE::tracer;
 
@@ -57,7 +56,9 @@ int addToKeySet(KeySet &keySet, Key &, string const &filename) {
   file_input<> input{filename};
 
   try {
-    auto root = parse<yaml, action, tracer>(input, state);
+    auto root =
+        tao::TAO_PEGTL_NAMESPACE::parse_tree::parse<yaml, selector, action,
+                                                    tracer>(input, state);
     if (root) {
       std::cout << "\\o/" << std::endl;
     }
