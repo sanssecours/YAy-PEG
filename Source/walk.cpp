@@ -24,6 +24,23 @@ using tao::TAO_PEGTL_NAMESPACE::parse_tree::node;
 namespace {
 
 /**
+ * @brief This function checks if a given string ends with another string
+ *
+ * @param text This parameter stores the string that should be checked for the
+ *             ending stored in `ending`.
+ * @param ending This variable stores the text that will be compared with the
+ *               end of `text`.
+ *
+ * @retval true If `text` ends with `ending`
+ * @retval false Otherwise
+ */
+bool ends_with(std::string const &text, std::string const &ending) {
+  return ending.size() > text.size()
+             ? false
+             : std::equal(ending.rbegin(), ending.rend(), text.rbegin());
+}
+
+/**
  * @brief This function returns the string representation of a tree node.
  *
  * @param node This argument stores the tree node that this function converts to
