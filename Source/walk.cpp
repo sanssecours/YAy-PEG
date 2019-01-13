@@ -37,6 +37,9 @@ string toString(node const &node, string const indent = "") {
   string representation;
 
   representation += node.is_root() ? "Root" : indent + node.name();
+  if (!node.is_root() && node.has_content()) {
+    representation += ": “" + node.content() + "”";
+  }
 
   if (!node.children.empty()) {
     for (auto &child : node.children) {
