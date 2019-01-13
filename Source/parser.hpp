@@ -368,11 +368,11 @@ struct s_indent {
   static bool match(Input &input, State &state) {
     size_t indent = state.indentation.back();
     size_t spaces = 0;
-    while (input.peek_char(spaces) == ' ') {
+    while (input.peek_char(spaces) == ' ' && spaces < indent) {
       spaces++;
     }
-    if (indent != spaces) {
-      LOGF("Expected {} spaces, but found {} spaces", indent, spaces);
+    if (spaces < indent) {
+      LOGF("Expected {} but found only {} spaces", indent, spaces);
       return false;
     }
     input.bump(state.indentation.back());
