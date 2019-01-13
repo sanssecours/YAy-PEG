@@ -127,6 +127,15 @@ void walk(Listener &listener, node const &node) {
 
   cerr << toString(node) << "\n" << endl;
 
+  // If the document contains only one a single value we call `exitValue`
+  // for that function. We need to handle that special case to not add
+  // value multiple times for maps (once for `c_l_block_map_implicit_value`
+  // and once for the child of `c_l_block_map_implicit_value`).
+  if (node.is_root() && ends_with(node.children.back()->name(), "node")) {
+    listener.exitValue(node.children.back()->content());
+    return;
+  }
+
   executeListenerMethods(listener, node);
 }
 
