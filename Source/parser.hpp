@@ -108,7 +108,6 @@ struct push_indent {
       ++indent;
     }
     state.indentation.push_back(indent);
-    LOGF("State: {}", state.toString());
     return true;
   }
 };
@@ -119,7 +118,6 @@ template <> struct action<push_indent_plus_one> {
     size_t indent =
         !state.indentation.empty() ? state.indentation.back() + 1 : 1;
     state.indentation.push_back(indent);
-    LOGF("State: {}", state.toString());
   }
 };
 
@@ -130,7 +128,6 @@ template <> struct action<pop_indent> {
       return;
     }
     state.indentation.pop_back();
-    LOGF("State: {}", state.toString());
   }
 };
 
@@ -372,11 +369,9 @@ struct s_indent {
       spaces++;
     }
     if (spaces < indent) {
-      LOGF("Expected {} but found only {} spaces", indent, spaces);
       return false;
     }
     input.bump(state.indentation.back());
-    LOGF("Consumed {} spaces", state.indentation.back());
     return true;
   }
 };
