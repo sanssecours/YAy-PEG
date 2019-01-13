@@ -13,15 +13,13 @@
 #include "listener.hpp"
 #include "walk.hpp"
 
-using std::cout;
-using std::endl;
-using std::string;
-
 using tao::TAO_PEGTL_NAMESPACE::parse_tree::node;
 
 // -- Functions ----------------------------------------------------------------
 
 namespace {
+
+using std::string;
 
 using yaypeg::Listener;
 
@@ -122,6 +120,9 @@ namespace yaypeg {
  *             visits.
  */
 void walk(Listener &listener, node const &node) {
+  using std::cout;
+  using std::endl;
+
   cout << toString(node) << endl;
 
   executeListenerMethods(listener, node);
