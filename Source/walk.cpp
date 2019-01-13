@@ -49,6 +49,38 @@ string toString(node const &node, string const indent = "") {
   return representation;
 }
 
+/**
+ * @brief This function will be called after the walker exits an tree node.
+ *
+ * @param listener The function calls methods of this class when it encountered
+ *                 an anode with a certain name.
+ * @param node This argument stores the parse tree node
+ */
+void executeExit(Listener &, node const &node) {
+  if (node.is_root()) {
+    return;
+  }
+  cout << node.name() << endl;
+}
+
+/**
+ * @brief This function traverses a tree executing methods of a listener class.
+ *
+ * @param listener The function calls methods of this class while it traverses
+ *                 the tree.
+ * @param node This argument stores the tree node that this function traverses.
+ */
+void executeListenerMethods(Listener &listener, node const &node) {
+
+  if (!node.children.empty()) {
+    for (auto &child : node.children) {
+      executeListenerMethods(listener, *child);
+    }
+  }
+
+  executeExit(listener, node);
+}
+
 } // namespace
 
 /**
@@ -61,13 +93,7 @@ string toString(node const &node, string const indent = "") {
  *             visits.
  */
 void walk(Listener &listener, node const &node) {
-  if (node.is_root()) {
-    cout << toString(node) << endl;
-  }
+  cout << toString(node) << endl;
 
-  if (!node.children.empty()) {
-    for (auto &child : node.children) {
-      walk(listener, *child);
-    }
-  }
+  executeListenerMethods(listener, node);
 }
