@@ -729,6 +729,20 @@ struct l_yaml_stream : opt<l_any_document> {};
 
 struct yaml : l_yaml_stream {};
 
+// -- Debug Actions ------------------------------------------------------------
+
+template <> struct action<c_flow_json_node> {
+  template <typename Input> static void apply(const Input &input, State &) {
+    LOGF("`c_flow_json_node`: “{}”", input.string());
+  }
+};
+
+template <> struct action<ns_flow_node> {
+  template <typename Input> static void apply(const Input &input, State &) {
+    LOGF("`ns_flow_node`: “{}”", input.string());
+  }
+};
+
 // -- Parse Tree Selector ------------------------------------------------------
 
 template <typename Rule>
