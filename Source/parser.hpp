@@ -732,13 +732,15 @@ struct yaml : l_yaml_stream {};
 // -- Debug Actions ------------------------------------------------------------
 
 template <> struct action<c_flow_json_node> {
-  template <typename Input> static void apply(const Input &input, State &) {
+  template <typename Input>
+  static void apply(const Input &input __attribute__((unused)), State &) {
     LOGF("`c_flow_json_node`: “{}”", input.string());
   }
 };
 
 template <> struct action<ns_flow_node> {
-  template <typename Input> static void apply(const Input &input, State &) {
+  template <typename Input>
+  static void apply(const Input &input __attribute__((unused)), State &) {
     LOGF("`ns_flow_node`: “{}”", input.string());
   }
 };
