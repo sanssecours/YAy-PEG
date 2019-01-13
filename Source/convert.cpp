@@ -48,8 +48,8 @@ int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
   using std::endl;
   using tao::TAO_PEGTL_NAMESPACE::analyze;
   using tao::TAO_PEGTL_NAMESPACE::file_input;
+  using tao::TAO_PEGTL_NAMESPACE::normal;
   using tao::TAO_PEGTL_NAMESPACE::parse_error;
-  using tao::TAO_PEGTL_NAMESPACE::tracer;
   using tao::TAO_PEGTL_NAMESPACE::parse_tree::parse;
 
   State state;
@@ -63,8 +63,8 @@ int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
   KeySet keys;
   try {
     cerr << "— Recognizer ————\n" << endl;
+    auto root = parse<yaml, selector, action, normal>(input, state);
 
-    auto root = parse<yaml, selector, action, tracer>(input, state);
     Listener listener{parent};
     walk(listener, *root);
     keys = listener.getKeySet();
