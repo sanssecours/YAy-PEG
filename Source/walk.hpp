@@ -27,8 +27,7 @@
  *                 uses to convert the syntax tree to a key set.
  * @param root This variable stores the root of the tree this function visits.
  */
-void walk(Listener &listener __attribute__((unused)),
-          tao::TAO_PEGTL_NAMESPACE::parse_tree::node const &root
-          __attribute__((unused)));
+void walk(Listener &listener,
+          tao::TAO_PEGTL_NAMESPACE::parse_tree::node const &root);
 
 #endif // ELEKTRA_PLUGIN_YAYPEG_WALK_HPP
