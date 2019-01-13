@@ -23,6 +23,8 @@ using tao::TAO_PEGTL_NAMESPACE::parse_tree::node;
 
 namespace {
 
+using yaypeg::Listener;
+
 /**
  * @brief This function checks if a given string ends with another string
  *
@@ -108,6 +110,8 @@ void executeListenerMethods(Listener &listener, node const &node) {
 
 } // namespace
 
+namespace yaypeg {
+
 /**
  * @brief This function walks a syntax tree calling methods of the given
  *        listener.
@@ -122,3 +126,5 @@ void walk(Listener &listener, node const &node) {
 
   executeListenerMethods(listener, node);
 }
+
+} // namespace yaypeg

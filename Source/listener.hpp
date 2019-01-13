@@ -17,6 +17,8 @@
 
 // -- Class --------------------------------------------------------------------
 
+namespace yaypeg {
+
 /**
  * @brief This class contains methods to create a key set.
  *
@@ -70,5 +72,7 @@ public:
    */
   kdb::KeySet getKeySet() const;
 };
+
+} // namespace yaypeg
 
 #endif // ELEKTRA_PLUGIN_YAYPEG_LISTENER_HPP

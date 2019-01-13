@@ -19,6 +19,8 @@
 
 // -- Function -----------------------------------------------------------------
 
+namespace yaypeg {
+
 /**
  * @brief This function walks a syntax tree calling methods of the given
  *        listener.
@@ -29,5 +31,7 @@
  */
 void walk(Listener &listener,
           tao::TAO_PEGTL_NAMESPACE::parse_tree::node const &root);
+
+} // namespace yaypeg
 
 #endif // ELEKTRA_PLUGIN_YAYPEG_WALK_HPP

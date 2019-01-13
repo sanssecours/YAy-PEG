@@ -40,6 +40,8 @@ string scalarToText(string const &text) {
 
 // -- Class --------------------------------------------------------------------
 
+namespace yaypeg {
+
 /**
  * @brief This constructor creates a Listener using the given parent key.
  *
@@ -88,3 +90,5 @@ void Listener::exitPair() {
  * @return A key set created by the walker by calling methods of this class
  **/
 kdb::KeySet Listener::getKeySet() const { return keys; }
+
+} // namespace yaypeg
