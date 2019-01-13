@@ -44,6 +44,7 @@ using std::string;
  */
 int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
   using std::cerr;
+  using std::cout;
   using std::endl;
   using tao::TAO_PEGTL_NAMESPACE::analyze;
   using tao::TAO_PEGTL_NAMESPACE::file_input;
@@ -54,12 +55,14 @@ int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
   State state;
 
   // Check grammar for problematic code
+  cout << "— Analyzer ————\n" << endl;
   analyze<yaml>();
 
   file_input<> input{filename};
 
   KeySet keys;
   try {
+    cerr << "— Recognizer ————\n" << endl;
 
     auto root = parse<yaml, selector, action, tracer>(input, state);
     Listener listener{parent};
