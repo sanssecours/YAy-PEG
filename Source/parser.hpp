@@ -35,6 +35,7 @@
 
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/analyze.hpp>
+#include <tao/pegtl/contrib/parse_tree.hpp>
 
 #include <kdb.hpp>
 
@@ -735,8 +736,14 @@ struct yaml : l_yaml_stream {};
 
 // -- Parse Tree Selector ------------------------------------------------------
 
-template <typename Rule> struct selector : std::false_type {};
-template <> struct selector<s_l_plus_block_node> : std::true_type {};
+template <typename Rule>
+using selector = tao::TAO_PEGTL_NAMESPACE::parse_tree::selector<
+    Rule,
+    tao::TAO_PEGTL_NAMESPACE::parse_tree::apply_store_content::to<
+        c_flow_json_node, ns_flow_node>,
+    tao::TAO_PEGTL_NAMESPACE::parse_tree::apply_remove_content::to<
+        ns_l_block_map_implicit_entry, ns_s_block_map_implicit_key,
+        c_l_block_map_implicit_value>>;
 
 } // namespace yaypeg
 
