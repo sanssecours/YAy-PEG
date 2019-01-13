@@ -53,7 +53,7 @@ bool ends_with(std::string const &text, std::string const &ending) {
 string toString(node const &node, string const indent = "") {
   string representation;
 
-  representation += node.is_root() ? "Root" : indent + node.name();
+  representation += node.is_root() ? "root" : indent + node.name();
   if (!node.is_root() && node.has_content()) {
     representation += ": “" + node.content() + "”";
   }
@@ -120,10 +120,12 @@ namespace yaypeg {
  *             visits.
  */
 void walk(Listener &listener, node const &node) {
-  using std::cout;
+  using std::cerr;
   using std::endl;
 
-  cout << toString(node) << endl;
+  cerr << "\n— Tree ————\n" << endl;
+
+  cerr << toString(node) << "\n" << endl;
 
   executeListenerMethods(listener, node);
 }
