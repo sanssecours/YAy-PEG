@@ -73,11 +73,19 @@ string toString(node const &node, string const indent = "") {
  *                 an anode with a certain name.
  * @param node This argument stores the parse tree node
  */
-void executeExit(Listener &, node const &node) {
+void executeExit(Listener &listener, node const &node) {
   if (node.is_root()) {
     return;
   }
-  cout << node.name() << endl;
+
+  if (ends_with(node.name(), "ns_s_block_map_implicit_key")) {
+    listener.exitKey(node.children.back()->content());
+  } else if (ends_with(node.name(), "c_l_block_map_implicit_value") &&
+             ends_with(node.children.back()->name(), "node")) {
+    listener.exitValue(node.children.back()->content());
+  } else if (ends_with(node.name(), "ns_l_block_map_implicit_entry")) {
+    listener.exitPair();
+  }
 }
 
 /**

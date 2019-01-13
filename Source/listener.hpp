@@ -24,6 +24,7 @@
  * a key set from the syntax tree created by the parser (`convert`).
  */
 class Listener {
+
   /** This variable stores the key set that this listener creates. */
   kdb::KeySet keys;
 
@@ -41,6 +42,26 @@ public:
    *               listener produces.
    */
   Listener(kdb::Key const &parent);
+
+  /**
+   * @brief This function will be called after the walker exits a value node.
+   *
+   * @param text This variable contains the text stored in the value.
+   */
+  void exitValue(std::string const &text);
+
+  /**
+   * @brief This function will be called after the walker exits a key node.
+   *
+   * @param text This variable contains the text of the key.
+   */
+  void exitKey(std::string const &text);
+
+  /**
+   * @brief This function will be called after the walker exits the node for a
+   *        key-value pair.
+   */
+  void exitPair();
 
   /**
    * @brief This method returns the key set of the listener.
