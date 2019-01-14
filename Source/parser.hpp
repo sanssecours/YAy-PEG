@@ -692,6 +692,13 @@ struct s_l_plus_block_collection : seq<s_l_comments, l_plus_block_mapping> {};
 // = 9.1. Documents =
 // ==================
 
+// ==========================
+// = 9.1.1. Document Prefix =
+// ==========================
+
+// [202]
+struct l_document_prefix : seq<opt<c_byte_order_mark>, star<l_comment>> {};
+
 // ===========================
 // = 9.1.2. Document Markers =
 // ===========================
@@ -724,8 +731,8 @@ struct l_bare_document
 // [210] (Incomplete)
 struct l_any_document : sor<l_bare_document> {};
 
-// [211] (Incomplete)
-struct l_yaml_stream : opt<l_any_document> {};
+// [211] (Incomplete, Modified)
+struct l_yaml_stream : seq<opt<l_document_prefix>, opt<l_any_document>> {};
 
 struct yaml : l_yaml_stream {};
 
