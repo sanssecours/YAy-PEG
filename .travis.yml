@@ -84,15 +84,9 @@ before_install:
       git clone --branch v1.x https://github.com/gabime/spdlog.git
       sudo cp -R spdlog/include/spdlog /usr/local/include
     fi
-  - >
-    git clone --branch 2.7.x https://github.com/taocpp/PEGTL.git &&
-    cd PEGTL &&
-    mkdir build &&
-    cd build &&
-    cmake .. &&
-    make &&
-    sudo make install &&
-    cd ../..
+  - |
+    git clone --branch 2.7.1 https://github.com/taocpp/PEGTL.git
+    sudo cp -R PEGTL/include/tao /usr/local/include
 
 before_script:
   - mkdir -p Build
