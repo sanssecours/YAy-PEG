@@ -751,7 +751,7 @@ template <typename Rule>
 using selector = tao::TAO_PEGTL_NAMESPACE::parse_tree::selector<
     Rule,
     tao::TAO_PEGTL_NAMESPACE::parse_tree::apply_store_content::to<
-        c_flow_json_node, ns_flow_yaml_node, ns_flow_node>,
+        c_flow_json_node, ns_flow_yaml_node, ns_flow_node, e_node>,
     tao::TAO_PEGTL_NAMESPACE::parse_tree::apply_remove_content::to<
         ns_l_block_map_implicit_entry, ns_s_block_map_implicit_key,
         c_l_block_map_implicit_value>>;
