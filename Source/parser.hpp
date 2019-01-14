@@ -632,6 +632,33 @@ struct ns_flow_node : ns_flow_content {};
 // = 8.2. Block Collection Styles =
 // ================================
 
+// ==========================
+// = 8.2.1. Block Sequences =
+// ==========================
+
+// [183]
+struct c_l_block_seq_entry;
+struct l_plus_block_sequence
+    : with_updated_indent<more_indent, plus<s_indent, c_l_block_seq_entry>> {};
+// [184]
+struct s_l_plus_block_indented;
+struct c_l_block_seq_entry
+    : seq<one<'-'>, not_at<ns_char>,
+          with_updated_context<State::Context::BLOCK_IN,
+                               s_l_plus_block_indented>> {};
+// [185]
+struct s_l_plus_block_node;
+struct ns_l_compact_sequence;
+struct ns_l_compact_mapping;
+struct s_l_plus_block_indented
+    : sor<seq<with_updated_indent<
+              s_indent, with_updated_indent_plus_one<
+                            sor<ns_l_compact_sequence, ns_l_compact_mapping>>>>,
+          s_l_plus_block_node, seq<e_node, s_l_comments>> {};
+// [186]
+struct ns_l_compact_sequence
+    : seq<c_l_block_seq_entry, star<s_indent, c_l_block_seq_entry>> {};
+
 // =========================
 // = 8.2.2. Block Mappings =
 // =========================
@@ -656,7 +683,6 @@ struct ns_s_block_map_implicit_key
                            sor<c_s_implicit_json_key, ns_s_implicit_yaml_key>> {
 };
 // [194]
-struct s_l_plus_block_node;
 struct c_l_block_map_implicit_value
     : seq<one<':'>, sor<with_updated_context<State::Context::BLOCK_OUT,
                                              s_l_plus_block_node>,
@@ -684,8 +710,30 @@ struct s_l_plus_flow_in_block
 struct s_l_plus_block_collection;
 struct s_l_plus_block_in_block : sor<s_l_plus_block_collection> {};
 // [200] (Incomplete)
-// TODO: Add support for sequences
-struct s_l_plus_block_collection : seq<s_l_comments, l_plus_block_mapping> {};
+template <typename... Rules> struct seq_spaces;
+struct s_l_plus_block_collection
+    : seq<s_l_comments,
+          sor<seq_spaces<l_plus_block_sequence>, l_plus_block_mapping>> {};
+
+// [201]
+struct push_indent_sequence : success {};
+template <> struct action<push_indent_sequence> {
+  template <typename Input> static void apply(const Input &, State &state) {
+    if (state.indentation.empty() ||
+        (state.context.top() == State::Context::BLOCK_OUT &&
+         state.indentation.back() <= 0)) {
+      return;
+    }
+
+    size_t indent = state.indentation.back();
+    state.indentation.push_back(
+        (state.context.top() == State::Context::BLOCK_OUT) ? indent - 1
+                                                           : indent);
+  }
+};
+template <typename... Rules>
+struct seq_spaces
+    : with_updated_state<push_indent_sequence, pop_indent, Rules...> {};
 
 // ==================
 // = 9.1. Documents =
