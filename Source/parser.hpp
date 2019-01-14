@@ -190,7 +190,6 @@ template <typename Comparator, bool DefaultValue = false> struct indent {
 };
 
 struct less_indent : indent<std::less<size_t>> {};
-struct same_indent : indent<std::equal_to<size_t>> {};
 struct more_indent : indent<std::greater<size_t>, true> {};
 
 template <State::Context Context1, State::Context Context2, typename RuleTrue,
