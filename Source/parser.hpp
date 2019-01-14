@@ -808,7 +808,8 @@ using selector = tao::TAO_PEGTL_NAMESPACE::parse_tree::selector<
         c_flow_json_node, ns_flow_yaml_node, ns_flow_node, e_node>,
     tao::TAO_PEGTL_NAMESPACE::parse_tree::apply_remove_content::to<
         ns_l_block_map_implicit_entry, ns_s_block_map_implicit_key,
-        c_l_block_map_implicit_value>>;
+        c_l_block_map_implicit_value, l_plus_block_sequence,
+        c_l_block_seq_entry>>;
 
 } // namespace yaypeg
 
