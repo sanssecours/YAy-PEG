@@ -445,7 +445,7 @@ struct s_separate_lines
 // [75]
 struct c_nb_comment_text : seq<one<'#'>, star<nb_char>> {};
 // [76]
-struct b_comment : sor<b_non_content, eof> {};
+struct b_comment : sor<b_non_content, seq<eof, failure>> {};
 // [77]
 struct s_b_comment
     : seq<opt<s_separate_in_line, opt<c_nb_comment_text>>, b_comment> {};
@@ -453,7 +453,7 @@ struct s_b_comment
 struct l_comment : seq<s_separate_in_line, opt<c_nb_comment_text>, b_comment> {
 };
 // [79]
-struct s_l_comments : seq<sor<s_b_comment, bol>, sor<eof, star<l_comment>>> {};
+struct s_l_comments : seq<sor<s_b_comment, bol>, star<l_comment>> {};
 
 // ====================
 // = 7.2. Empty Nodes =
