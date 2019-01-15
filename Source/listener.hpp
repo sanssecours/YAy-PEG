@@ -36,6 +36,11 @@ class Listener {
    */
   std::stack<kdb::Key> parents;
 
+  /**
+   * This stack stores indices for the next array elements.
+   */
+  std::stack<uintmax_t> indices;
+
 public:
   /**
    * @brief This constructor creates a Listener using the given parent key.
@@ -64,6 +69,28 @@ public:
    *        key-value pair.
    */
   void exitPair();
+
+  /**
+   * @brief This function will be called before the walker enters a sequence
+   *        node.
+   */
+  void enterSequence();
+
+  /**
+   * @brief This function will be called after the walker exits a sequence node.
+   */
+  void exitSequence();
+
+  /**
+   * @brief This function will be called before the walker enters an element
+   *        node.
+   */
+  void enterElement();
+
+  /**
+   * @brief This function will be called after the walker exits a sequence node.
+   */
+  void exitElement();
 
   /**
    * @brief This method returns the key set of the listener.

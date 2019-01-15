@@ -10,13 +10,32 @@
 
 #include "listener.hpp"
 
+using std::overflow_error;
 using std::string;
+using std::to_string;
 
 using kdb::Key;
 
 // -- Functions ----------------------------------------------------------------
 
 namespace {
+
+/**
+ * @brief This function converts a given number to an array base name.
+ *
+ * @param index This number specifies the index of the array entry.
+ *
+ * @return A string representing the given indices as Elektra array name.
+ */
+string indexToArrayBaseName(uintmax_t const index) {
+  size_t digits = 1;
+
+  for (uintmax_t value = index; value > 9; digits++) {
+    value /= 10;
+  }
+
+  return "#" + string(digits - 1, '_') + to_string(index);
+}
 
 /**
  * @brief This function converts a YAML scalar to a string.
@@ -82,6 +101,52 @@ void Listener::exitPair() {
   // Returning from a mapping such as `part: …` means that we need need to
   // remove the key for `part` from the stack.
   parents.pop();
+}
+
+/**
+ * @brief This function will be called before the walker enters a sequence
+ *        node.
+ */
+void Listener::enterSequence() {
+  indices.push(0);
+  parents.top().setMeta("array", ""); // We start with an empty array
+}
+
+/**
+ * @brief This function will be called after the walker exits a sequence node.
+ */
+void Listener::exitSequence() {
+  // We add the parent key of all array elements after we leave the sequence
+  keys.append(parents.top());
+  indices.pop();
+}
+
+/**
+ * @brief This function will be called before the walker enters an element
+ *        node.
+ */
+void Listener::enterElement() {
+  Key key{parents.top().getName(), KEY_END};
+  if (indices.top() >= UINTMAX_MAX)
+    throw overflow_error("Unable to increase array index for array “" +
+                         key.getName() + "”");
+
+  key.addBaseName(indexToArrayBaseName(indices.top()));
+
+  uintmax_t index = indices.top();
+  indices.pop();
+  index++;
+  indices.push(index);
+
+  parents.top().setMeta("array", key.getBaseName());
+  parents.push(key);
+}
+
+/**
+ * @brief This function will be called after the walker exits a sequence node.
+ */
+void Listener::exitElement() {
+  parents.pop(); // Remove the key for the current array entry
 }
 
 /**
