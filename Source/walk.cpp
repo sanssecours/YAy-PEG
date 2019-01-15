@@ -67,6 +67,26 @@ string toString(node const &node, string const indent = "") {
 }
 
 /**
+ * @brief This function will be called before the walker enters an abstract
+ *        tree node.
+ *
+ * @param listener The function calls methods of this class when it encounters
+ *                 an abstract node with a certain name.
+ * @param node This argument stores the abstract tree node
+ */
+void executeEnter(Listener &listener, node const &node) {
+  if (node.is_root()) {
+    return;
+  }
+
+  if (ends_with(node.name(), "c_l_block_seq_entry")) {
+    listener.enterElement();
+  } else if (ends_with(node.name(), "l_plus_block_sequence")) {
+    listener.enterSequence();
+  }
+}
+
+/**
  * @brief This function will be called after the walker exits an tree node.
  *
  * @param listener The function calls methods of this class when it encountered
@@ -85,6 +105,13 @@ void executeExit(Listener &listener, node const &node) {
     listener.exitValue(node.children.back()->content());
   } else if (ends_with(node.name(), "ns_l_block_map_implicit_entry")) {
     listener.exitPair();
+  } else if (ends_with(node.name(), "l_plus_block_sequence")) {
+    listener.exitSequence();
+  } else if (ends_with(node.name(), "c_l_block_seq_entry")) {
+    if (ends_with(node.children.back()->name(), "node")) {
+      listener.exitValue(node.children.back()->content());
+    }
+    listener.exitElement();
   }
 }
 
@@ -96,6 +123,8 @@ void executeExit(Listener &listener, node const &node) {
  * @param node This argument stores the tree node that this function traverses.
  */
 void executeListenerMethods(Listener &listener, node const &node) {
+
+  executeEnter(listener, node);
 
   if (!node.children.empty()) {
     for (auto &child : node.children) {
