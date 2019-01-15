@@ -62,6 +62,7 @@ using tao::TAO_PEGTL_NAMESPACE::eof;
 using tao::TAO_PEGTL_NAMESPACE::eolf;
 using tao::TAO_PEGTL_NAMESPACE::failure;
 using tao::TAO_PEGTL_NAMESPACE::identifier;
+using tao::TAO_PEGTL_NAMESPACE::if_must;
 using tao::TAO_PEGTL_NAMESPACE::must;
 using tao::TAO_PEGTL_NAMESPACE::not_at;
 using tao::TAO_PEGTL_NAMESPACE::nothing;
@@ -741,7 +742,7 @@ struct l_any_document : sor<l_bare_document> {};
 // [211] (Incomplete, Modified)
 struct l_yaml_stream : seq<opt<l_document_prefix>, opt<l_any_document>> {};
 
-struct yaml : l_yaml_stream {};
+struct yaml : if_must<l_yaml_stream, eof> {};
 
 // -- Debug Actions ------------------------------------------------------------
 
