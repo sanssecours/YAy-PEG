@@ -10,15 +10,15 @@
 
 #include "listener.hpp"
 
-using std::overflow_error;
 using std::string;
-using std::to_string;
 
 using kdb::Key;
 
 // -- Functions ----------------------------------------------------------------
 
 namespace {
+
+using std::to_string;
 
 /**
  * @brief This function converts a given number to an array base name.
@@ -60,6 +60,8 @@ string scalarToText(string const &text) {
 // -- Class --------------------------------------------------------------------
 
 namespace yaypeg {
+
+using std::overflow_error;
 
 /**
  * @brief This constructor creates a Listener using the given parent key.
