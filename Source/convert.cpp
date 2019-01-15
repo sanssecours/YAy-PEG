@@ -55,7 +55,12 @@ int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
 
   // Check grammar for problematic code
   cout << "— Analyzer ————\n" << endl;
-  analyze<yaml>();
+  if (analyze<yaml>() != 0) {
+    cerr << "PEGTLs analyze function found problems while checking the top "
+            "level grammar rule `yaml`!"
+         << endl;
+    return -1;
+  }
 
   file_input<> input{filename};
 
