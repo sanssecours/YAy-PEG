@@ -81,19 +81,7 @@ using tao::TAO_PEGTL_NAMESPACE::utf8::ranges;
 // = Parser Context Updates =
 // ==========================
 
-template <typename Rule> struct base {
-  template <typename Input> static void apply(const Input &, State &state) {
-    state.lastWasNsChar = false;
-  }
-};
-template <typename Rule> struct action : base<Rule> {};
-
-struct ns_char;
-template <> struct action<ns_char> {
-  template <typename Input> static void apply(const Input &, State &state) {
-    state.lastWasNsChar = true;
-  }
-};
+template <typename Rule> struct action : nothing<Rule> {};
 
 struct push_indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
@@ -546,21 +534,8 @@ struct ns_plain_safe
 struct ns_plain_safe_out : ns_char {};
 // [129]
 struct ns_plain_safe_in : seq<not_at<c_flow_indicator>, ns_char> {};
-// [130]
-struct last_was_ns_plain_safe {
-  using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
-      tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
-
-  template <tao::TAO_PEGTL_NAMESPACE::apply_mode ApplyMode,
-            tao::TAO_PEGTL_NAMESPACE::rewind_mode RewindMode,
-            template <typename...> class Action,
-            template <typename...> class Control, typename Input>
-  static bool match(Input &, State &state) {
-    return state.lastWasNsChar;
-  }
-};
+// [130] (Incomplete)
 struct ns_plain_char : sor<seq<not_at<one<':', '#'>>, ns_plain_safe>,
-                           seq<last_was_ns_plain_safe, one<'#'>>,
                            seq<one<':'>, at<ns_plain_safe>>> {};
 
 // [131]
