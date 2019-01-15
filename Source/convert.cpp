@@ -17,7 +17,6 @@
 #define TAO_PEGTL_NAMESPACE yaypeg
 
 #include <tao/pegtl/contrib/parse_tree.hpp>
-#include <tao/pegtl/contrib/tracer.hpp>
 
 namespace yaypeg {
 
