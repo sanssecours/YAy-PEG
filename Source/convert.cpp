@@ -36,7 +36,7 @@ using std::string;
  * @param filename This parameter stores the path of the YAML file this
  *                 function converts.
  *
- * @retval -1 if there was a error converting the YAML file
+ * @retval -1 if there was an error converting the YAML file
  * @retval  0 if parsing was successful and the function did not change the
  *            given keyset
  * @retval  1 if parsing was successful and the function did change `keySet`
