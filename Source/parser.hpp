@@ -53,6 +53,7 @@ extern shared_ptr<spdlog::logger> console;
 
 namespace yaypeg {
 
+using tao::TAO_PEGTL_NAMESPACE::any;
 using tao::TAO_PEGTL_NAMESPACE::at;
 using tao::TAO_PEGTL_NAMESPACE::blank;
 using tao::TAO_PEGTL_NAMESPACE::bol;
@@ -726,11 +727,9 @@ struct c_forbidden : seq<bol, sor<c_directives_end, c_document_end>,
 // =========================
 
 // [207]
-// TODO: Check for `c_forbidden` in every line and not just at the
-// beginning of the document.
-struct l_bare_document
-    : with_updated_context<State::Context::BLOCK_IN, not_at<c_forbidden>,
-                           s_l_plus_block_node> {};
+struct l_bare_document : with_updated_context<State::Context::BLOCK_IN,
+                                              not_at<until<c_forbidden, any>>,
+                                              s_l_plus_block_node> {};
 
 // ================
 // = 9.2. Streams =
