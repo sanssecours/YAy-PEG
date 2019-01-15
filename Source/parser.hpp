@@ -103,7 +103,7 @@ struct push_indent {
             tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
             template <typename...> class, typename Input>
   static bool match(Input &input, State &state) {
-    size_t indent = 0;
+    long long indent = 0;
     while (input.peek_char(indent) == ' ') {
       ++indent;
     }
@@ -115,18 +115,13 @@ struct push_indent {
 struct push_indent_plus_one : success {};
 template <> struct action<push_indent_plus_one> {
   template <typename Input> static void apply(const Input &, State &state) {
-    size_t indent =
-        !state.indentation.empty() ? state.indentation.back() + 1 : 1;
-    state.indentation.push_back(indent);
+    state.indentation.push_back(state.indentation.back() + 1);
   }
 };
 
 struct pop_indent : success {};
 template <> struct action<pop_indent> {
   template <typename Input> static void apply(const Input &, State &state) {
-    if (state.indentation.empty()) {
-      return;
-    }
     state.indentation.pop_back();
   }
 };
@@ -172,7 +167,7 @@ struct with_updated_context
 // = Parser Context Checks =
 // =========================
 
-template <typename Comparator, bool DefaultValue = false> struct indent {
+template <typename Comparator> struct indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
 
@@ -181,16 +176,13 @@ template <typename Comparator, bool DefaultValue = false> struct indent {
             template <typename...> class, typename Input>
   static bool match(Input &, State &state) {
     size_t levels = state.indentation.size();
-    if (levels <= 1) {
-      return DefaultValue;
-    }
     return Comparator{}(state.indentation[levels - 1],
                         state.indentation[levels - 2]);
   }
 };
 
-struct less_indent : indent<std::less<size_t>> {};
-struct more_indent : indent<std::greater<size_t>, true> {};
+struct less_indent : indent<std::less<long long>> {};
+struct more_indent : indent<std::greater<long long>> {};
 
 template <State::Context Context1, State::Context Context2, typename RuleTrue,
           typename RuleFalse>
@@ -362,8 +354,8 @@ struct s_indent {
             tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
             template <typename...> class, typename Input>
   static bool match(Input &input, State &state) {
-    size_t indent = state.indentation.back();
-    size_t spaces = 0;
+    auto indent = state.indentation.back();
+    decltype(indent) spaces = 0;
     while (input.peek_char(spaces) == ' ' && spaces < indent) {
       spaces++;
     }
@@ -719,13 +711,7 @@ struct s_l_plus_block_collection
 struct push_indent_sequence : success {};
 template <> struct action<push_indent_sequence> {
   template <typename Input> static void apply(const Input &, State &state) {
-    if (state.indentation.empty() ||
-        (state.context.top() == State::Context::BLOCK_OUT &&
-         state.indentation.back() <= 0)) {
-      return;
-    }
-
-    size_t indent = state.indentation.back();
+    auto indent = state.indentation.back();
     state.indentation.push_back(
         (state.context.top() == State::Context::BLOCK_OUT) ? indent - 1
                                                            : indent);

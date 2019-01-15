@@ -33,7 +33,7 @@ struct State {
   };
 
   std::stack<Context> context;
-  std::deque<size_t> indentation;
+  std::deque<long long> indentation{std::initializer_list<long long>{-1}};
 
   bool lastWasNsChar = false;
 

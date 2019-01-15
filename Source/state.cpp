@@ -59,7 +59,7 @@ string State::toString() const noexcept {
           ? ""
           : accumulate(next(indentation.begin()), indentation.end(),
                        to_string(indentation[0]), // start with first element
-                       [](string text, size_t indent) {
+                       [](string text, long long indent) {
                          return move(text) + ", " + to_string(indent);
                        });
 
