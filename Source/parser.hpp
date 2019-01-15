@@ -85,6 +85,9 @@ using tao::TAO_PEGTL_NAMESPACE::utf8::ranges;
 
 template <typename Rule> struct action : nothing<Rule> {};
 
+/**
+ * @brief This grammar rule updates the current indentation (for block nodes).
+ */
 struct push_indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
@@ -426,13 +429,13 @@ struct s_separate_lines
 // [75]
 struct c_nb_comment_text : seq<one<'#'>, star<nb_char>> {};
 // [76]
-struct b_comment : sor<b_non_content, seq<eof, failure>> {};
+struct b_comment : sor<b_non_content, eof> {};
 // [77]
 struct s_b_comment
     : seq<opt<s_separate_in_line, opt<c_nb_comment_text>>, b_comment> {};
 // [78]
-struct l_comment : seq<s_separate_in_line, opt<c_nb_comment_text>, b_comment> {
-};
+struct l_comment : seq<s_separate_in_line, opt<c_nb_comment_text>,
+                       sor<b_non_content, seq<eof, failure>>> {};
 // [79]
 struct s_l_comments : seq<sor<s_b_comment, bol>, star<l_comment>> {};
 
