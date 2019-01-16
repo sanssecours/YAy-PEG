@@ -3,6 +3,15 @@
  *
  * @brief This file contains a basic PEGTL YAML grammar.
  *
+ * The grammar tries to stay as close as possible to the one of the
+ * [specification](https://yaml.org/spec/1.2/spec.html).
+ *
+ * Since PEGTL’s grammar rules do not support nested function calls with custom
+ * parameters directly, we use stacks stored in a custom state to emulate the
+ * function based matching rules of the YAML spec. One of those stacks stores
+ * the current indentation levels, while the other one stores the contexts (
+ * e.g. `flow-in`, `flow-out`, etc.).
+ *
  * @copyright BSD License (see LICENSE.md or https://www.libelektra.org)
  */
 
