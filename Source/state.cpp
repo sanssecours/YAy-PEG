@@ -33,17 +33,18 @@ string State::contextToString() const noexcept {
   if (context.empty()) {
     return "EMPTY";
   }
-  if (context.top() == Context::BLOCK_IN) {
+  switch (context.top()) {
+  case Context::BLOCK_IN:
     return "BLOCK_IN";
-  } else if (context.top() == Context::BLOCK_OUT) {
+  case Context::BLOCK_OUT:
     return "BLOCK_OUT";
-  } else if (context.top() == Context::BLOCK_KEY) {
+  case Context::BLOCK_KEY:
     return "BLOCK_KEY";
-  } else if (context.top() == Context::FLOW_KEY) {
+  case Context::FLOW_KEY:
     return "FLOW_KEY";
-  } else if (context.top() == Context::FLOW_IN) {
+  case Context::FLOW_IN:
     return "FLOW_IN";
-  } else if (context.top() == Context::FLOW_OUT) {
+  case Context::FLOW_OUT:
     return "FLOW_OUT";
   }
   return "UKNOWN";
