@@ -177,7 +177,7 @@ template <typename Comparator> struct indent {
             tao::TAO_PEGTL_NAMESPACE::rewind_mode, template <typename...> class,
             template <typename...> class, typename Input>
   static bool match(Input &, State &state) {
-    size_t levels = state.indentation.size();
+    auto levels = state.indentation.size();
     return Comparator{}(state.indentation[levels - 1],
                         state.indentation[levels - 2]);
   }
