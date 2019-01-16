@@ -27,17 +27,17 @@ namespace yaypeg {
  */
 class Listener {
 
-  /** This variable stores the key set that this listener creates. */
+  /** @brief This variable stores the key set that this listener creates. */
   kdb::KeySet keys;
 
   /**
-   * This stack stores a key for each level of the current key name below
-   * parent.
+   * @brief This stack stores a key for each level of the current key name below
+   *        parent.
    */
   std::stack<kdb::Key> parents;
 
   /**
-   * This stack stores indices for the next array elements.
+   * @brief This stack stores indices for the next array elements.
    */
   std::stack<uintmax_t> indices;
 
