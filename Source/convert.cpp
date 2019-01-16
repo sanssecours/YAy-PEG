@@ -68,6 +68,8 @@ int addToKeySet(KeySet &keySet, Key &parent, string const &filename) {
     file_input<> input{filename};
 
     cerr << "— Recognizer ————\n" << endl;
+    /* For detailed debugging information, please use the control class
+     * `tracer` instead of `normal`. */
     auto root = parse<yaml, selector, action, normal>(input, state);
 
     Listener listener{parent};
