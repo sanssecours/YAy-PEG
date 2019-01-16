@@ -92,10 +92,27 @@ using tao::TAO_PEGTL_NAMESPACE::utf8::ranges;
 // = Parser Context Updates =
 // ==========================
 
+/**
+ * @brief The default action for matched rules does not execute any code.
+ */
 template <typename Rule> struct action : nothing<Rule> {};
 
 /**
- * @brief This grammar rule updates the current indentation (for block nodes).
+ * @brief This grammar rule pushes the current indentation onto the stack.
+ *
+ * This piece of code takes a similar role of what the YAML spec describes as:
+ *
+ * > For some fixed auto-detected m > 0
+ *
+ * . Here `m` is a certain number of whitespace character. The YAML spec
+ * contains rules such as
+ *
+ * > rule-name(n+m)
+ *
+ * where it uses the sum of the autodetected (additional) indentation + the
+ * old indentation (of the parent of the current node). While we could detect
+ * `m` in the rule `push_indent`, we decided that the rule should detect `n+m`
+ * directly and and then put this value on the stack.
  */
 struct push_indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
@@ -114,6 +131,10 @@ struct push_indent {
   }
 };
 
+/**
+ * @brief This grammar rule increases the indentation by 1 and stores this value
+ *        on the stack.
+ */
 struct push_indent_plus_one : success {};
 template <> struct action<push_indent_plus_one> {
   template <typename Input> static void apply(const Input &, State &state) {
@@ -121,6 +142,9 @@ template <> struct action<push_indent_plus_one> {
   }
 };
 
+/**
+ * @brief This rule pops the top value of the indentation stack.
+ */
 struct pop_indent : success {};
 template <> struct action<pop_indent> {
   template <typename Input> static void apply(const Input &, State &state) {
@@ -128,6 +152,10 @@ template <> struct action<pop_indent> {
   }
 };
 
+/**
+ * @brief This rule pushes the context provided as first template parameter onto
+ *        the stack.
+ */
 template <State::Context Context> struct push_context {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
@@ -141,6 +169,9 @@ template <State::Context Context> struct push_context {
   }
 };
 
+/**
+ * @brief This rule pops the top value of the context stack.
+ */
 struct pop_context : success {};
 template <> struct action<pop_context> {
   template <typename Input> static void apply(const Input &, State &state) {
@@ -148,19 +179,37 @@ template <> struct action<pop_context> {
   }
 };
 
+/**
+ * @brief This meta rule temporarily updates the state using the given rules.
+ *
+ * The rule uses `UpdateStateRule` to change the state, then applies all rules
+ * stored in the template parameter pack `Rules` and undoes all state changes
+ * using `RevertStateRule` afterwards. The rule `RevertStateRule` is called
+ * regardless of the success or failure of `Rules`.
+ */
 template <typename UpdateStateRule, typename RevertStateRule, typename... Rules>
 struct with_updated_state
     : seq<UpdateStateRule, sor<seq<Rules...>, seq<RevertStateRule, failure>>,
           RevertStateRule> {};
 
+/**
+ * @brief This rule parses `Rules` with the indentation detected by
+ *        `push_indent`.
+ */
 template <typename... Rules>
 struct with_updated_indent
     : with_updated_state<push_indent, pop_indent, Rules...> {};
 
+/**
+ * @brief This rule parses `Rules` with the last indentation increased by one.
+ */
 template <typename... Rules>
 struct with_updated_indent_plus_one
     : with_updated_state<push_indent_plus_one, pop_indent, Rules...> {};
 
+/**
+ * @brief This rule parses `Rules` with the context updated to `Context`.
+ */
 template <State::Context Context, typename... Rules>
 struct with_updated_context
     : with_updated_state<push_context<Context>, pop_context, Rules...> {};
@@ -169,6 +218,10 @@ struct with_updated_context
 // = Parser Context Checks =
 // =========================
 
+/**
+ * @brief This rule compares the current indentation and the indentation level
+ *        before that using the given comparator.
+ */
 template <typename Comparator> struct indent {
   using analyze_t = tao::TAO_PEGTL_NAMESPACE::analysis::generic<
       tao::TAO_PEGTL_NAMESPACE::analysis::rule_type::ANY>;
@@ -183,9 +236,24 @@ template <typename Comparator> struct indent {
   }
 };
 
+/**
+ * @brief This rule succeeds if the current indentation level is smaller than
+ *        the one before.
+ */
 struct less_indent : indent<std::less<long long>> {};
+/**
+ * @brief This rule succeeds if the current indentation level is greater than
+ *        the one before.
+ */
 struct more_indent : indent<std::greater<long long>> {};
 
+/**
+ * @brief This rule changes the matching function based on the current context.
+ *
+ * The rule uses `RuleTrue` to match the current input, if the current context
+ * is either `Context1` or `Context2`. If that is not the case, then the rule
+ * matches the input with the matching function of `RuleFalse` instead.
+ */
 template <State::Context Context1, State::Context Context2, typename RuleTrue,
           typename RuleFalse>
 struct if_context_else {
