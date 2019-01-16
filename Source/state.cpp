@@ -29,6 +29,11 @@ using std::to_string;
 // = Private =
 // ===========
 
+/**
+ * @brief This method converts the current context to a string.
+ *
+ * @return The string representation of the context on top of the context stack.
+ */
 string State::contextToString() const noexcept {
   if (context.empty()) {
     return "EMPTY";
@@ -54,6 +59,11 @@ string State::contextToString() const noexcept {
 // = Public =
 // ==========
 
+/**
+ * @brief This method converts the state to a string.
+ *
+ * @return A string representation of the current state.
+ */
 string State::toString() const noexcept {
   string indents =
       indentation.size() <= 0
