@@ -22,11 +22,10 @@
 namespace yaypeg {
 
 /**
- * @brief This function walks a syntax tree calling methods of the given
- *        listener.
+ * @brief This function walks a tree calling methods of the given listener.
  *
  * @param listener This argument specifies the listener which this function
- *                 uses to convert the syntax tree to a key set.
+ *                 uses to convert the tree to a key set.
  * @param root This variable stores the root of the tree this function visits.
  */
 void walk(Listener &listener,

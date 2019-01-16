@@ -67,12 +67,11 @@ string toString(node const &node, string const indent = "") {
 }
 
 /**
- * @brief This function will be called before the walker enters an abstract
- *        tree node.
+ * @brief This function will be called before the walker enters a tree node.
  *
  * @param listener The function calls methods of this class when it encounters
- *                 an abstract node with a certain name.
- * @param node This argument stores the abstract tree node
+ *                 a node with a certain name.
+ * @param node This argument stores the tree node
  */
 void executeEnter(Listener &listener, node const &node) {
   if (node.is_root()) {
@@ -87,10 +86,10 @@ void executeEnter(Listener &listener, node const &node) {
 }
 
 /**
- * @brief This function will be called after the walker exits an tree node.
+ * @brief This function will be called after the walker exits a tree node.
  *
- * @param listener The function calls methods of this class when it encountered
- *                 an anode with a certain name.
+ * @param listener The function calls methods of this class when it encounters
+ *                 a node with a certain name.
  * @param node This argument stores the parse tree node
  */
 void executeExit(Listener &listener, node const &node) {
@@ -140,11 +139,10 @@ void executeListenerMethods(Listener &listener, node const &node) {
 namespace yaypeg {
 
 /**
- * @brief This function walks a syntax tree calling methods of the given
- *        listener.
+ * @brief This function walks a tree calling methods of the given listener.
  *
  * @param listener This argument specifies the listener which this function
- *                 uses to convert the syntax tree to a key set.
+ *                 uses to convert the tree to a key set.
  * @param root This variable stores the root of the tree this function
  *             visits.
  */
@@ -159,7 +157,8 @@ void walk(Listener &listener, node const &node) {
   // If the document contains only one a single value we call `exitValue`
   // for that function. We need to handle that special case to not add
   // value multiple times for maps (once for `c_l_block_map_implicit_value`
-  // and once for the child of `c_l_block_map_implicit_value`).
+  // and `c_l_block_seq_entry`) and once for the child of
+  // `c_l_block_map_implicit_value`).
   if (node.is_root() && !node.children.empty() &&
       ends_with(node.children.back()->name(), "node")) {
     listener.exitValue(node.children.back()->content());
