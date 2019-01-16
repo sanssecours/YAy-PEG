@@ -842,6 +842,10 @@ template <> struct action<ns_flow_node> {
 
 // -- Parse Tree Selector ------------------------------------------------------
 
+/**
+ * @brief This selector removes all nodes for grammar rules from the parse tree
+ *        except for the ones for the grammar rules specified below.
+ */
 template <typename Rule>
 using selector = tao::TAO_PEGTL_NAMESPACE::parse_tree::selector<
     Rule,
