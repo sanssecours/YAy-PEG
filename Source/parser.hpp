@@ -98,7 +98,7 @@ template <typename Input> std::uint32_t lastMatchedUtf32(Input &input) {
     character = *last & 0b00111111;
     character |= (*(last - 1) & 0b00111111) << 6;
     character |= (*(last - 2) & 0b00001111) << 12;
-  } // Four bytes: 11110xxx	10xxxxxx	10xxxxxx	10xxxxxx
+  } // Four bytes: 11110xxx  10xxxxxx  10xxxxxx  10xxxxxx
   else if (last - 3 != input.begin() &&
            static_cast<std::uint8_t>(*(last - 3)) >> 3 == 0b00011110) {
     LOG("Four Bytes");
