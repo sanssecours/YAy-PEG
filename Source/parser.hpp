@@ -75,7 +75,7 @@ namespace {
  *
  * @return The last matched character as UTF-32 code point
  */
-template <typename Input> std::uint32_t lastMatchedUint32(Input &input) {
+template <typename Input> std::uint32_t lastMatchedUtf32(Input &input) {
   // We assume UTF-8 as encoding!
   auto last = input.current() - 1;
   std::uint32_t character = 0;
@@ -686,7 +686,7 @@ struct ns_char_preceding {
       return true;
     }
 
-    auto last = lastMatchedUint32(input);
+    auto last = lastMatchedUtf32(input);
 
     if (last == '\n' || last == 0xFEFF || last == ' ' || last == '\t') {
       return false;
