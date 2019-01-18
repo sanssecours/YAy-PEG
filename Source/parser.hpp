@@ -58,6 +58,62 @@ using std::shared_ptr;
 extern shared_ptr<spdlog::logger> console;
 #endif
 
+// -- Functions ----------------------------------------------------------------
+
+namespace {
+
+/**
+ * @brief This function returns the last matched character as UTF-32 code point.
+ *
+ * @pre The given input has to store at least one matched character:
+ *      `(input.current() != input.begin())`.
+ *
+ * @note The function returns `'\0'` if either the last matched character was
+ *       `'\0'` or if the input did not contain a valid UTF-8 sequence.
+ *
+ * @param input This variable stores the current state of the parser input.
+ *
+ * @return The last matched character as UTF-32 code point
+ */
+template <typename Input> std::uint32_t lastMatchedUint32(Input &input) {
+  // We assume UTF-8 as encoding!
+  auto last = input.current() - 1;
+  std::uint32_t character = 0;
+
+  // One byte: 0xxxxxxx
+  if (static_cast<std::uint8_t>(*last) <= 0b01111111) {
+    LOG("One Byte");
+    character = *last;
+  }
+  // Two bytes: 110xxxxx  10xxxxxx
+  else if (last - 1 != input.begin() &&
+           static_cast<std::uint8_t>(*(last - 1)) >> 5 == 0b00000110) {
+    LOG("Two Bytes");
+    character = *last & 0b00111111;
+    character |= (*(last - 1) & 0b00011111) << 6;
+  } // Three bytes: 1110xxxx  10xxxxxx  10xxxxxx
+  else if (last - 2 != input.begin() &&
+           static_cast<std::uint8_t>(*(last - 2)) >> 4 == 0b00001110) {
+    LOG("Three Bytes");
+    character = *last & 0b00111111;
+    character |= (*(last - 1) & 0b00111111) << 6;
+    character |= (*(last - 2) & 0b00001111) << 12;
+  } // Four bytes: 11110xxx	10xxxxxx	10xxxxxx	10xxxxxx
+  else if (last - 3 != input.begin() &&
+           static_cast<std::uint8_t>(*(last - 3)) >> 3 == 0b00011110) {
+    LOG("Four Bytes");
+    character = *last & 0b00111111;
+    character |= (*(last - 1) & 0b00111111) << 6;
+    character |= (*(last - 2) & 0b00111111) << 12;
+    character |= (*(last - 3) & 0b00000111) << 18;
+  }
+
+  LOGF("Last: “{}”", static_cast<unsigned long>(character));
+  return character;
+}
+
+} // namespace
+
 // -- Rules & Actions ----------------------------------------------------------
 
 namespace yaypeg {
@@ -629,15 +685,16 @@ struct ns_char_preceding {
     if (input.current() == input.begin()) {
       return true;
     }
-    auto last = input.current() - 1;
 
-    if (*last == '\n' || *last == 0xFEFF || *last == ' ' || *last == '\t') {
+    auto last = lastMatchedUint32(input);
+
+    if (last == '\n' || last == 0xFEFF || last == ' ' || last == '\t') {
       return false;
     }
-    return *last == 0x85 || (*last > ' ' && *last <= 0x7E) ||
-           (*last >= 0xA0 && *last <= 0xD7FF) ||
-           (*last >= 0xE000 && *last <= 0xFFFD) ||
-           (*last >= 0x10000 && *last <= 0x10FFFF);
+    return last == 0x85 || (last > ' ' && last <= 0x7E) ||
+           (last >= 0xA0 && last <= 0xD7FF) ||
+           (last >= 0xE000 && last <= 0xFFFD) ||
+           (last >= 0x10000 && last <= 0x10FFFF);
   }
 };
 struct ns_plain_char
