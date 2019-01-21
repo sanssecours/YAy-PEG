@@ -660,7 +660,7 @@ struct nb_single_multi_line
 // [126]
 struct ns_plain_safe;
 struct ns_plain_first : sor<seq<not_at<c_indicator>, ns_char>,
-                            seq<one<'?', ':', '-'>, ns_plain_safe>> {};
+                            seq<one<'?', ':', '-'>, at<ns_plain_safe>>> {};
 
 // [127]
 struct ns_plain_safe_out;
